@@ -27,6 +27,39 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
     return result_image;
 }
 
+CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], int _size) {
+
+    CMyImage temp_image(_image.getHeight(), _image.getWidth());
+
+    int half = _size / 2;
+
+    for (int i = 0; i < _image.getHeight(); i++) {
+        for (int j = 0; j < _image.getWidth(); j++) {
+            double result_intensity = 0;
+            for (int y = 0; y < _size; y++) {
+                auto intensity = _image.get(i, j + y - half);
+                result_intensity += _filter[y] * intensity;
+            }
+            temp_image.set(i, j, result_intensity);
+        }
+    }
+
+    CMyImage result_image(temp_image.getHeight(), temp_image.getWidth());
+
+    for (int i = 0; i < temp_image.getHeight(); i++) {
+        for (int j = 0; j < temp_image.getWidth(); j++) {
+            double result_intensity = 0;
+            for (int x = 0; x < _size; x++) {
+                auto intensity = temp_image.get(i + x - half, j);
+                result_intensity += _filter[x] * intensity;
+            }
+            result_image.set(i, j, result_intensity);
+        }
+    }
+
+    return result_image;
+}
+
 double getGradient(double _x, double _y) {
     return sqrt(_x * _x + _y * _y);
 }
@@ -58,4 +91,15 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
     return result_image;
 }
 
+CMyImage getGaussSeparable(const CMyImage& _image) {
+    auto result_image = applySeparableFilter(_image, gauss_separable_filter, gauss_kernel_size);
+    return result_image;
 }
+
+CMyImage getGauss(const CMyImage& _image) {
+    CMatrix kernel(gauss_kernel_size, gauss_kernel_size, gauss_kernel);
+    auto result_image = applyConvolution(_image, kernel);
+    return result_image;
+}
+
+} // mycv
