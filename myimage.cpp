@@ -29,10 +29,10 @@ double CMyImage::get(int _row, int _col) const {
         auto indices = getMirrorIndices(_row, _col);
         return CMatrix::get(indices.first, indices.second);
     } else if (m_BorderEffect == BorderEffect::Wrap) {
-        return 0.8;
-    } else {
-        return 0;
+        auto indices = getWrapIndices(_row, _col);
+        return CMatrix::get(indices.first, indices.second);
     }
+    return 0;
 }
 
 BorderEffect CMyImage::getBorderEffect() const {
@@ -102,6 +102,29 @@ std::pair<int, int> CMyImage::getMirrorIndices(int _row, int _col) const {
         res_col = -_col;
     } else if (_col >= getWidth()) {
         res_col = 2 * getWidth() - _col - 1;
+    } else {
+        res_col = _col;
+    }
+
+    return std::make_pair(res_row, res_col);
+}
+
+std::pair<int, int> CMyImage::getWrapIndices(int _row, int _col) const {
+    int res_row;
+    int res_col;
+
+    if (_row < 0) {
+        res_row = getHeight() + _row;
+    } else if (_row >= getHeight()) {
+        res_row = _row - getHeight();
+    } else {
+        res_row = _row;
+    }
+
+    if (_col < 0) {
+        res_col = getWidth() + _col;
+    } else if (_col >= getWidth()) {
+        res_col = _col - getWidth();
     } else {
         res_col = _col;
     }

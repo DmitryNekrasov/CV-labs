@@ -28,6 +28,7 @@ private:
 
     std::pair<int, int> getClampIndices(int _row, int _col)     const;
     std::pair<int, int> getMirrorIndices(int _row, int _col)    const;
+    std::pair<int, int> getWrapIndices(int _row, int _col)      const;
 
     BorderEffect m_BorderEffect;
 };
