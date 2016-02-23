@@ -24,7 +24,9 @@ public:
 private:
 
     double  convertToDouble(int _intensity) const;
-    int     convertToInt(double _intensity) const;
+    int convertToInt(double _intensity)     const;
+
+    std::pair<int, int> getClampIndices(int _row, int _col) const;
 
     BorderEffect m_BorderEffect;
 };
