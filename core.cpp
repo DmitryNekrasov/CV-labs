@@ -31,6 +31,19 @@ double getGradient(double _x, double _y) {
     return sqrt(_x * _x + _y * _y);
 }
 
+CMyImage getSobelDx(const CMyImage& _image) {
+    CMatrix kernel_x(sobel_kernel_size, sobel_kernel_size, sobel_kernel_x_array);
+    auto result_image = applyConvolution(_image, kernel_x);
+    return result_image;
+}
+
+
+CMyImage getSobelDy(const CMyImage& _image) {
+    CMatrix kernel_y(sobel_kernel_size, sobel_kernel_size, sobel_kernel_y_array);
+    auto result_image = applyConvolution(_image, kernel_y);
+    return result_image;
+}
+
 CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
 
     CMyImage result_image(_dx.getHeight(), _dx.getWidth());
