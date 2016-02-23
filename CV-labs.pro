@@ -10,7 +10,9 @@ CONFIG -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    matrix.cpp
+    matrix.cpp \
+    myimage.cpp
 
 HEADERS += \
-    matrix.h
+    matrix.h \
+    myimage.h
