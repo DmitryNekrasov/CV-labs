@@ -16,7 +16,7 @@ CMatrix::CMatrix(int _height, int _width)
     initializeIntensityMap();
 }
 
-CMatrix::CMatrix(int _height, int _width, double _array[])
+CMatrix::CMatrix(int _height, int _width, const double _array[])
     : CMatrix(_height, _width)
 {
     std::copy(_array, _array + m_Height * m_Width, m_IntensityMap.get());

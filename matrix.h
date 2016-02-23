@@ -9,7 +9,7 @@ public:
 
     CMatrix();
     CMatrix(int _height, int _width);
-    CMatrix(int _height, int _width, double _array[]);
+    CMatrix(int _height, int _width, const double _array[]);
 
     virtual ~CMatrix() = default;
     virtual double get(int _row, int _col)  const;
