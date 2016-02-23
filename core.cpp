@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "core.h"
 
 namespace mycv {
@@ -19,6 +21,24 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
                 }
             }
             result_image.set(i, j, result_intensity);
+        }
+    }
+
+    return result_image;
+}
+
+double getGradient(double _x, double _y) {
+    return sqrt(_x * _x + _y * _y);
+}
+
+CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
+
+    CMyImage result_image(_dx.getHeight(), _dx.getWidth());
+
+    for (int i = 0; i < result_image.getHeight(); i++) {
+        for (int j = 0; j < result_image.getWidth(); j++) {
+            auto gradient = getGradient(_dx.get(i, j), _dy.get(i, j));
+            result_image.set(i, j, gradient);
         }
     }
 

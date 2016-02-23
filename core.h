@@ -6,7 +6,9 @@
 
 namespace mycv {
 
-CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
+CMyImage    applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
+double      getGradient(double _x, double _y);
+CMyImage    getSobel(const CMyImage& _dx, const CMyImage& _dy);
 
 } // mycv
 
