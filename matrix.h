@@ -23,6 +23,8 @@ protected:
 
     bool    inRange(int _row, int _col)     const;
 
+    std::unique_ptr<double[]>   m_IntensityMap;
+
 private:
 
     void    initializeIntensityMap();
@@ -30,7 +32,6 @@ private:
 
     int                         m_Height;
     int                         m_Width;
-    std::unique_ptr<double[]>   m_IntensityMap;
 
 };
 

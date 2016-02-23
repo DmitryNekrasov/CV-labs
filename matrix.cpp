@@ -4,9 +4,9 @@
 #include "matrix.h"
 
 CMatrix::CMatrix()
-    : m_Height(0)
+    : m_IntensityMap(nullptr)
+    , m_Height(0)
     , m_Width(0)
-    , m_IntensityMap(nullptr)
 {}
 
 CMatrix::CMatrix(int _height, int _width)
