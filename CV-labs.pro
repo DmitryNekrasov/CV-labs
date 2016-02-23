@@ -15,4 +15,5 @@ SOURCES += main.cpp \
 
 HEADERS += \
     matrix.h \
-    myimage.h
+    myimage.h \
+    defs.h

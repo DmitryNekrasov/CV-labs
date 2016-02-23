@@ -3,23 +3,30 @@
 
 #include <QImage>
 
+#include "defs.h"
 #include "matrix.h"
 
 class CMyImage : public CMatrix
 {
 public:
 
-    CMyImage(int _height, int _width);
-    CMyImage(const QImage& _qimage);
+    CMyImage(int _height, int _width, BorderEffect _border_effect = BorderEffect::Zero);
+    CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Zero);
 
-    virtual double get(int _row, int _col) const override;
+    virtual double get(int _row, int _col)  const override;
 
-    std::unique_ptr<QImage> toQImagePtr() const;
+    BorderEffect    getBorderEffect()       const;
+
+    void            setBorderEffect(BorderEffect _border_effect);
+
+    std::unique_ptr<QImage> toQImagePtr()   const;
 
 private:
 
     double  convertToDouble(int _intensity) const;
     int     convertToInt(double _intensity) const;
+
+    BorderEffect m_BorderEffect;
 };
 
 #endif // CMYIMAGE_H

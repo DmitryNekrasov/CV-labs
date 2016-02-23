@@ -2,12 +2,13 @@
 
 #include "myimage.h"
 
-CMyImage::CMyImage(int _height, int _width)
+CMyImage::CMyImage(int _height, int _width, BorderEffect _border_effect /* = BorderEffect::Zero */)
     : CMatrix(_height, _width)
+    , m_BorderEffect(_border_effect)
 {}
 
-CMyImage::CMyImage(const QImage& _qimage)
-    : CMatrix(_qimage.height(), _qimage.width())
+CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = BorderEffect::Zero */)
+    : CMyImage(_qimage.height(), _qimage.width(), _border_effect)
 {
     for (int i = 0; i < getHeight(); i++) {
         for (int j = 0; j < getWidth(); j++) {
@@ -22,6 +23,14 @@ double CMyImage::get(int _row, int _col) const {
         return CMatrix::get(_row, _col);
     }
     return 0;
+}
+
+BorderEffect CMyImage::getBorderEffect() const {
+    return m_BorderEffect;
+}
+
+void CMyImage::setBorderEffect(BorderEffect _border_effect) {
+    m_BorderEffect = _border_effect;
 }
 
 std::unique_ptr<QImage> CMyImage::toQImagePtr() const {
