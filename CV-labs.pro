@@ -11,9 +11,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     matrix.cpp \
-    myimage.cpp
+    myimage.cpp \
+    core.cpp
 
 HEADERS += \
     matrix.h \
     myimage.h \
-    defs.h
+    defs.h \
+    core.h
