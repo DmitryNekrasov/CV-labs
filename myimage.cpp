@@ -47,7 +47,8 @@ void CMyImage::normalize() {
     auto minmax = std::minmax_element(m_IntensityMap.get(), m_IntensityMap.get() + getHeight() * getWidth());
     auto min_intensity = *minmax.first;
     auto max_intensity = *minmax.second;
-    std::transform(m_IntensityMap.get(), m_IntensityMap.get() + getHeight() * getWidth(), m_IntensityMap.get(), [=](const auto& intensity) {
+    std::transform(m_IntensityMap.get(), m_IntensityMap.get() + getHeight() * getWidth(), m_IntensityMap.get(),
+    [=](const auto& intensity) {
         return (intensity - min_intensity) / double(max_intensity - min_intensity);
     });
 }
