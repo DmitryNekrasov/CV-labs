@@ -101,7 +101,7 @@ std::pair<int, int> CMyImage::getMirrorIndices(int _row, int _col) const {
     int res_col;
 
     if (_row < 0) {
-        res_row = -_row;
+        res_row = -_row - 1;
     } else if (_row >= getHeight()) {
         res_row = 2 * getHeight() - _row - 1;
     } else {
@@ -109,7 +109,7 @@ std::pair<int, int> CMyImage::getMirrorIndices(int _row, int _col) const {
     }
 
     if (_col < 0) {
-        res_col = -_col;
+        res_col = -_col - 1;
     } else if (_col >= getWidth()) {
         res_col = 2 * getWidth() - _col - 1;
     } else {
