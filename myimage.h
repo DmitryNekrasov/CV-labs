@@ -1,5 +1,4 @@
-#ifndef CMYIMAGE_H
-#define CMYIMAGE_H
+#pragma once
 
 #include <iostream>
 
@@ -39,5 +38,3 @@ private:
 
     BorderEffect m_BorderEffect;
 };
-
-#endif // CMYIMAGE_H

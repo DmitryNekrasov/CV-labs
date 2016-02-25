@@ -1,5 +1,4 @@
-#ifndef CMATRIX_H
-#define CMATRIX_H
+#pragma once
 
 #include <memory>
 
@@ -34,5 +33,3 @@ private:
     int                         m_Width;
 
 };
-
-#endif // CMATRIX_H

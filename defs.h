@@ -1,5 +1,4 @@
-#ifndef DEFS_H
-#define DEFS_H
+#pragma once
 
 enum class BorderEffect {
     Zero,
@@ -7,5 +6,3 @@ enum class BorderEffect {
     Clamp,
     Mirror
 };
-
-#endif // DEFS_H

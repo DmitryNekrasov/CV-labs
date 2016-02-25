@@ -1,5 +1,4 @@
-#ifndef CORE_H
-#define CORE_H
+#pragma once
 
 #include "matrix.h"
 #include "myimage.h"
@@ -42,5 +41,3 @@ CMyImage    getGaussSeparable(const CMyImage& _image);
 CMyImage    getGauss(const CMyImage& _image);
 
 } // mycv
-
-#endif // CORE_H
