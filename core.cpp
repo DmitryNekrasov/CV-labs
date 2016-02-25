@@ -1,5 +1,3 @@
-#include <cmath>
-
 #include "core.h"
 
 namespace mycv {
@@ -58,10 +56,6 @@ CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], in
     }
 
     return result_image;
-}
-
-double getGradient(double _x, double _y) {
-    return sqrt(_x * _x + _y * _y);
 }
 
 CMyImage getSobelDx(const CMyImage& _image) {
