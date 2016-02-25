@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 
 class CMatrix
@@ -31,3 +32,16 @@ private:
     int                         m_Width;
 
 };
+
+inline double CMatrix::get(int _row, int _col) const {
+    assert(inRange(_row, _col));
+    return m_IntensityMap[getIndex(_row, _col)];
+}
+
+inline bool CMatrix::inRange(int _row, int _col) const {
+    return _row >= 0 && _row < int(m_Height) && _col >= 0 && _col < int(m_Width);
+}
+
+inline size_t CMatrix::getIndex(int _row, int _col) const {
+    return size_t(_row * m_Width + _col);
+}

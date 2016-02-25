@@ -18,23 +18,6 @@ CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = Borde
     }
 }
 
-double CMyImage::get(int _row, int _col) const {
-    if (inRange(_row, _col)) {
-        return CMatrix::get(_row, _col);
-    }
-    if (m_BorderEffect == BorderEffect::Clamp) {
-        auto indices = getClampIndices(_row, _col);
-        return CMatrix::get(indices.first, indices.second);
-    } else if (m_BorderEffect == BorderEffect::Mirror) {
-        auto indices = getMirrorIndices(_row, _col);
-        return CMatrix::get(indices.first, indices.second);
-    } else if (m_BorderEffect == BorderEffect::Wrap) {
-        auto indices = getWrapIndices(_row, _col);
-        return CMatrix::get(indices.first, indices.second);
-    }
-    return 0;
-}
-
 BorderEffect CMyImage::getBorderEffect() const {
     return m_BorderEffect;
 }
