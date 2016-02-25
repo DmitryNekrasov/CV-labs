@@ -1,6 +1,9 @@
 #include <cassert>
 
 #include "myimage.h"
+#include "simple.h"
+
+namespace mycv {
 
 CMyImage::CMyImage(int _height, int _width, BorderEffect _border_effect /* = BorderEffect::Zero */)
     : CMatrix(_height, _width)
@@ -13,7 +16,7 @@ CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = Borde
     for (int i = 0, ei = getHeight(); i < ei; i++) {
         for (int j = 0, ej = getWidth(); j < ej; j++) {
             auto gray = qGray(_qimage.pixel(j, i));
-            set(i, j, convertToDouble(gray));
+            set(i, j, smpl::convertToDouble(gray));
         }
     }
 }
@@ -40,20 +43,12 @@ std::unique_ptr<QImage> CMyImage::toQImagePtr() const {
     auto qimage_ptr = std::make_unique<QImage>(getWidth(), getHeight(), QImage::Format_RGB32);
     for (int i = 0, ei = getHeight(); i < ei; i++) {
         for (int j = 0, ej = getWidth(); j < ej; j++) {
-            auto gray = convertToInt(get(i, j));
+            auto gray = smpl::convertToInt(get(i, j));
             assert(gray >= 0 && gray < 256 && "NOT NORMALIZED VALUE");
             qimage_ptr->setPixel(j, i, qRgb(gray, gray, gray));
         }
     }
     return qimage_ptr;
-}
-
-double CMyImage::convertToDouble(int _intensity) const {
-    return double(_intensity) / 255;
-}
-
-int CMyImage::convertToInt(double _intensity) const {
-    return int(_intensity * 255);
 }
 
 std::pair<int, int> CMyImage::getClampIndices(int _row, int _col) const {
@@ -124,3 +119,5 @@ std::pair<int, int> CMyImage::getWrapIndices(int _row, int _col) const {
 
     return std::make_pair(res_row, res_col);
 }
+
+} // mycv

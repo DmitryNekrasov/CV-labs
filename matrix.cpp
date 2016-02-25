@@ -2,6 +2,8 @@
 
 #include "matrix.h"
 
+namespace mycv {
+
 CMatrix::CMatrix()
     : m_IntensityMap(nullptr)
     , m_Height(0)
@@ -37,3 +39,5 @@ void CMatrix::set(int _row, int _col, double _value) {
 void CMatrix::initializeIntensityMap() {
     m_IntensityMap = std::make_unique<double[]>(size_t(m_Height * m_Width));
 }
+
+} // mycv

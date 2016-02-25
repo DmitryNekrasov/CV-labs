@@ -8,7 +8,7 @@
 int main() {
 
     QImage qimage_in("/Users/ScanNorOne/Desktop/laferrari.jpg");
-    CMyImage image_in(qimage_in, BorderEffect::Clamp);
+    mycv::CMyImage image_in(qimage_in, mycv::BorderEffect::Clamp);
 
     auto sobel_dx = mycv::getSobelDx(image_in);
     auto sobel_dy = mycv::getSobelDy(image_in);

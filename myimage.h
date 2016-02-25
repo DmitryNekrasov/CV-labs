@@ -7,6 +7,8 @@
 #include "defs.h"
 #include "matrix.h"
 
+namespace mycv {
+
 class CMyImage : public CMatrix
 {
 public:
@@ -27,9 +29,6 @@ public:
     CMyImage& operator=(CMyImage&&) = default;
 
 private:
-
-    double  convertToDouble(int _intensity) const;
-    int     convertToInt(double _intensity) const;
 
     std::pair<int, int> getClampIndices(int _row, int _col)     const;
     std::pair<int, int> getMirrorIndices(int _row, int _col)    const;
@@ -54,3 +53,5 @@ inline double CMyImage::get(int _row, int _col) const {
     }
     return 0;
 }
+
+} // mycv

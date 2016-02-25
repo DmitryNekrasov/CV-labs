@@ -3,6 +3,8 @@
 #include <cassert>
 #include <memory>
 
+namespace mycv {
+
 class CMatrix
 {
 public:
@@ -45,3 +47,5 @@ inline bool CMatrix::inRange(int _row, int _col) const {
 inline size_t CMatrix::getIndex(int _row, int _col) const {
     return size_t(_row * m_Width + _col);
 }
+
+} // mycv
