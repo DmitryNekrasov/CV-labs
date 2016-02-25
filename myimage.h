@@ -16,8 +16,7 @@ public:
     CMyImage(const CMyImage&) {std::cout << "COPY" << std::endl;}  // TODO костыль
     CMyImage(CMyImage&&) = default;
 
-    virtual double get(int _row, int _col)  const override;
-
+    double          get(int _row, int _col) const;
     BorderEffect    getBorderEffect()       const;
 
     void            setBorderEffect(BorderEffect _border_effect);

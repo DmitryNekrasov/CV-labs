@@ -10,11 +10,9 @@ public:
     CMatrix(int _height, int _width);
     CMatrix(int _height, int _width, const double _array[]);
 
-    virtual ~CMatrix() = default;
-    virtual double get(int _row, int _col)  const;
-
-    int getHeight() const;
-    int getWidth()  const;
+    double  get(int _row, int _col) const;
+    int     getHeight()             const;
+    int     getWidth()              const;
 
     void set(int _row, int _col, double _value);
 
