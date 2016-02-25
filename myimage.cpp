@@ -10,8 +10,8 @@ CMyImage::CMyImage(int _height, int _width, BorderEffect _border_effect /* = Bor
 CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = BorderEffect::Zero */)
     : CMyImage(_qimage.height(), _qimage.width(), _border_effect)
 {
-    for (int i = 0; i < getHeight(); i++) {
-        for (int j = 0; j < getWidth(); j++) {
+    for (int i = 0, ei = getHeight(); i < ei; i++) {
+        for (int j = 0, ej = getWidth(); j < ej; j++) {
             auto gray = qGray(_qimage.pixel(j, i));
             set(i, j, convertToDouble(gray));
         }
@@ -55,8 +55,8 @@ void CMyImage::normalize() {
 
 std::unique_ptr<QImage> CMyImage::toQImagePtr() const {
     auto qimage_ptr = std::make_unique<QImage>(getWidth(), getHeight(), QImage::Format_RGB32);
-    for (int i = 0; i < getHeight(); i++) {
-        for (int j = 0; j < getWidth(); j++) {
+    for (int i = 0, ei = getHeight(); i < ei; i++) {
+        for (int j = 0, ej = getWidth(); j < ej; j++) {
             auto gray = convertToInt(get(i, j));
             assert(gray >= 0 && gray < 256 && "NOT NORMALIZED VALUE");
             qimage_ptr->setPixel(j, i, qRgb(gray, gray, gray));

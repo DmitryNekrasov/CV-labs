@@ -11,11 +11,11 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
     int half_height = _kernel.getHeight() / 2;
     int half_width = _kernel.getWidth() / 2;
 
-    for (int i = 0; i < _image.getHeight(); i++) {
-        for (int j = 0; j < _image.getWidth(); j++) {
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
-            for (int x = 0; x < _kernel.getHeight(); x++) {
-                for (int y = 0; y < _kernel.getWidth(); y++) {
+            for (int x = 0, ex = _kernel.getHeight(); x < ex; x++) {
+                for (int y = 0, ey = _kernel.getWidth(); y < ey; y++) {
                     auto intensity = _image.get(i + x - half_height, j + y - half_width);
                     result_intensity += _kernel.get(x, y) * intensity;
                 }
@@ -33,8 +33,8 @@ CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], in
 
     int half = _size / 2;
 
-    for (int i = 0; i < _image.getHeight(); i++) {
-        for (int j = 0; j < _image.getWidth(); j++) {
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
             for (int y = 0; y < _size; y++) {
                 auto intensity = _image.get(i, j + y - half);
@@ -46,8 +46,8 @@ CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], in
 
     CMyImage result_image(temp_image.getHeight(), temp_image.getWidth());
 
-    for (int i = 0; i < temp_image.getHeight(); i++) {
-        for (int j = 0; j < temp_image.getWidth(); j++) {
+    for (int i = 0, ei = temp_image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = temp_image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
             for (int x = 0; x < _size; x++) {
                 auto intensity = temp_image.get(i + x - half, j);
@@ -81,8 +81,8 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
 
     CMyImage result_image(_dx.getHeight(), _dx.getWidth());
 
-    for (int i = 0; i < result_image.getHeight(); i++) {
-        for (int j = 0; j < result_image.getWidth(); j++) {
+    for (int i = 0, ei = result_image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
             auto gradient = getGradient(_dx.get(i, j), _dy.get(i, j));
             result_image.set(i, j, gradient);
         }
