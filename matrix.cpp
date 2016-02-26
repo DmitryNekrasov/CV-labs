@@ -36,6 +36,22 @@ void CMatrix::set(int _row, int _col, double _value) {
     m_IntensityMap[getIndex(_row, _col)] = _value;
 }
 
+double* CMatrix::begin() {
+    return m_IntensityMap.get();
+}
+
+double* CMatrix::end() {
+    return begin() + m_Height * m_Width;
+}
+
+const double* CMatrix::begin() const {
+    return m_IntensityMap.get();
+}
+
+const double* CMatrix::end() const {
+    return begin() + m_Height * m_Width;
+}
+
 void CMatrix::initializeIntensityMap() {
     m_IntensityMap = std::make_unique<double[]>(size_t(m_Height * m_Width));
 }

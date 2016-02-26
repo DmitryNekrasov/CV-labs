@@ -30,10 +30,10 @@ void CMyImage::setBorderEffect(BorderEffect _border_effect) {
 }
 
 void CMyImage::normalize() {
-    auto minmax = std::minmax_element(m_IntensityMap.get(), m_IntensityMap.get() + getHeight() * getWidth());
+    auto minmax = std::minmax_element(begin(), end());
     auto min_intensity = *minmax.first;
     auto max_intensity = *minmax.second;
-    std::transform(m_IntensityMap.get(), m_IntensityMap.get() + getHeight() * getWidth(), m_IntensityMap.get(),
+    std::transform(begin(), end(), begin(),
     [=](const auto& intensity) {
         return (intensity - min_intensity) / double(max_intensity - min_intensity);
     });

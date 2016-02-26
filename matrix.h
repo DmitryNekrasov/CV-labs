@@ -19,17 +19,21 @@ public:
 
     void set(int _row, int _col, double _value);
 
+    double*         begin();
+    double*         end();
+    const double*   begin()         const;
+    const double*   end()           const;
+
 protected:
 
     bool    inRange(int _row, int _col)     const;
-
-    std::unique_ptr<double[]>   m_IntensityMap;
 
 private:
 
     void    initializeIntensityMap();
     size_t  getIndex(int _row, int _col)    const;
 
+    std::unique_ptr<double[]>   m_IntensityMap;
     int                         m_Height;
     int                         m_Width;
 
