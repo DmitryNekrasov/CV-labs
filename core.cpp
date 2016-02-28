@@ -102,4 +102,18 @@ CMatrix getGaussKernel(double _sigma) {
     return kernel;
 }
 
+CMyImage getDownscale(const CMyImage& _image) {
+
+    CMyImage result_image(_image.getHeight() / 2, _image.getWidth() / 2);
+
+    for (int i = 0, ei = result_image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
+            auto intensity = _image.get(i * 2, j * 2);
+            result_image.set(i, j, intensity);
+        }
+    }
+
+    return result_image;
+}
+
 } // mycv

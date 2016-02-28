@@ -33,5 +33,6 @@ static inline double getGradient(double _x, double _y) {
 }
 
 CMatrix     getGaussKernel(double _sigma);
+CMyImage    getDownscale(const CMyImage& _image);
 
 } // mycv
