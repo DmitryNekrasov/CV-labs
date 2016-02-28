@@ -9,7 +9,7 @@
 int main() {
 
     QImage qimage_in("/Users/ScanNorOne/Desktop/laferrari.jpg");
-    mycv::CMyImage image_in(qimage_in, mycv::BorderEffect::Clamp);
+    mycv::CMyImage image_in(qimage_in);
 
     double sigma = 1;
     auto gauss_kernel = mycv::getGaussKernel(sigma);

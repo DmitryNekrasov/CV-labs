@@ -5,12 +5,12 @@
 
 namespace mycv {
 
-CMyImage::CMyImage(int _height, int _width, BorderEffect _border_effect /* = BorderEffect::Zero */)
+CMyImage::CMyImage(int _height, int _width, BorderEffect _border_effect /* = BorderEffect::Mirror */)
     : CMatrix(_height, _width)
     , m_BorderEffect(_border_effect)
 {}
 
-CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = BorderEffect::Zero */)
+CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = BorderEffect::Mirror */)
     : CMyImage(_qimage.height(), _qimage.width(), _border_effect)
 {
     for (int i = 0, ei = getHeight(); i < ei; i++) {

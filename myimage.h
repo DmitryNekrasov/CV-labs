@@ -13,8 +13,8 @@ class CMyImage : public CMatrix
 {
 public:
 
-    CMyImage(int _height, int _width, BorderEffect _border_effect = BorderEffect::Zero);
-    CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Zero);
+    CMyImage(int _height, int _width, BorderEffect _border_effect = BorderEffect::Mirror);
+    CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Mirror);
     CMyImage(CMyImage&&) = default;
 
     double          get(int _row, int _col) const;
