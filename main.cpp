@@ -4,29 +4,32 @@
 #include "defs.h"
 #include "matrix.h"
 #include "myimage.h"
+#include "simple.h"
 
 int main() {
 
     QImage qimage_in("/Users/ScanNorOne/Desktop/laferrari.jpg");
     mycv::CMyImage image_in(qimage_in, mycv::BorderEffect::Clamp);
 
-    auto sobel_dx = mycv::getSobelDx(image_in);
-    auto sobel_dy = mycv::getSobelDy(image_in);
-    auto sobel_avg = mycv::getSobel(sobel_dx, sobel_dy);
-    auto gauss_separable = mycv::getGaussSeparable(image_in);
-    auto gauss = mycv::getGauss(image_in);
+    double sigma = 1;
+    auto gauss_kernel = mycv::getGaussKernel(sigma);
+    auto gauss = mycv::applyConvolution(image_in, gauss_kernel);
 
-    sobel_dx.normalize();
-    sobel_dy.normalize();
-    sobel_avg.normalize();
-    gauss_separable.normalize();
-    gauss.normalize();
+    std::cout << gauss_kernel.getHeight() << " " << gauss_kernel.getWidth() << std::endl;
+
+    double sum = 0;
+    for (int i = 0, ei = gauss_kernel.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = gauss_kernel.getWidth(); j < ej; j++) {
+            double v = gauss_kernel.get(i, j);
+            sum += v;
+            std::cout << v << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    std::cout << "sum = " << sum << std::endl;
 
     image_in.toQImagePtr()->save("/Users/ScanNorOne/Desktop/grayscale.png");
-    sobel_dx.toQImagePtr()->save("/Users/ScanNorOne/Desktop/sobel_dx.png");
-    sobel_dy.toQImagePtr()->save("/Users/ScanNorOne/Desktop/sobel_dy.png");
-    sobel_avg.toQImagePtr()->save("/Users/ScanNorOne/Desktop/sobel_avg.png");
-    gauss_separable.toQImagePtr()->save("/Users/ScanNorOne/Desktop/gauss_separable.png");
     gauss.toQImagePtr()->save("/Users/ScanNorOne/Desktop/gauss.png");
 
     return 0;

@@ -1,4 +1,5 @@
 #include "core.h"
+#include "simple.h"
 
 namespace mycv {
 
@@ -85,15 +86,20 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
     return result_image;
 }
 
-CMyImage getGaussSeparable(const CMyImage& _image) {
-    auto result_image = applySeparableFilter(_image, gauss_separable_filter, gauss_kernel_size);
-    return result_image;
-}
+CMatrix getGaussKernel(double _sigma) {
 
-CMyImage getGauss(const CMyImage& _image) {
-    CMatrix kernel(gauss_kernel_size, gauss_kernel_size, gauss_kernel);
-    auto result_image = applyConvolution(_image, kernel);
-    return result_image;
+    int kernel_size = int(std::ceil(3 * _sigma)) * 2 + 1;
+    CMatrix kernel(kernel_size, kernel_size);
+
+    int half = kernel_size / 2;
+
+    for (int i = 0, ei = kernel.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = kernel.getWidth(); j < ej; j++) {
+            kernel.set(i, j, smpl::gauss(i - half, j - half, _sigma));
+        }
+    }
+
+    return kernel;
 }
 
 } // mycv

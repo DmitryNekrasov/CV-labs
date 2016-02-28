@@ -15,7 +15,6 @@ public:
 
     CMyImage(int _height, int _width, BorderEffect _border_effect = BorderEffect::Zero);
     CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Zero);
-    CMyImage(const CMyImage&) {std::cout << "COPY" << std::endl;}  // TODO костыль
     CMyImage(CMyImage&&) = default;
 
     double          get(int _row, int _col) const;
