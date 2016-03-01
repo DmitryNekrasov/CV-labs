@@ -105,13 +105,13 @@ CMatrix getGaussKernel(double _sigma) {
 SeparableFilterT getSeparableGauss(const CMatrix& _gauss_kernel) {
 
     auto kernel_size = _gauss_kernel.getHeight();
-    auto _separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
+    auto separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
 
     for (int i = 0; i < kernel_size; i++) {
-        _separable_filter.first[i] = _separable_filter.second[i] = sqrt(_gauss_kernel.get(i, i));
+        separable_filter.first[i] = separable_filter.second[i] = sqrt(_gauss_kernel.get(i, i));
     }
 
-    return _separable_filter;
+    return separable_filter;
 }
 
 CMyImage getDownscale(const CMyImage& _image) {
