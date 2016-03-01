@@ -26,6 +26,7 @@ const double sobel_kernel_y_array[] = {
 
 CMyImage            applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
 CMyImage            applySeparableFilter(const CMyImage& _image, const double _filter[], int _size);
+CMyImage            applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter);
 
 CMyImage            getSobelDx(const CMyImage& _image);
 CMyImage            getSobelDy(const CMyImage& _image);

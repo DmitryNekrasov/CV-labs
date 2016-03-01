@@ -26,18 +26,18 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
     return result_image;
 }
 
-CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], int _size) {
+CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter) {
 
     CMyImage temp_image(_image.getHeight(), _image.getWidth());
 
-    int half = _size / 2;
+    int half = _filter.first.getSize() / 2;
 
     for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
-            for (int y = 0; y < _size; y++) {
+            for (int y = 0, ey = _filter.first.getSize(); y < ey; y++) {
                 auto intensity = _image.get(i, j + y - half);
-                result_intensity += _filter[y] * intensity;
+                result_intensity += intensity * _filter.first[y];
             }
             temp_image.set(i, j, result_intensity);
         }
@@ -48,9 +48,9 @@ CMyImage applySeparableFilter(const CMyImage& _image, const double _filter[], in
     for (int i = 0, ei = temp_image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = temp_image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
-            for (int x = 0; x < _size; x++) {
+            for (int x = 0, ex = _filter.second.getSize(); x < ex; x++) {
                 auto intensity = temp_image.get(i + x - half, j);
-                result_intensity += _filter[x] * intensity;
+                result_intensity += intensity * _filter.second[x];
             }
             result_image.set(i, j, result_intensity);
         }
