@@ -13,11 +13,13 @@ SOURCES += main.cpp \
     matrix.cpp \
     myimage.cpp \
     core.cpp \
-    simple.cpp
+    simple.cpp \
+    array.cpp
 
 HEADERS += \
     matrix.h \
     myimage.h \
     defs.h \
     core.h \
-    simple.h
+    simple.h \
+    array.h
