@@ -32,7 +32,8 @@ CMyImage            getSobelDy(const CMyImage& _image);
 CMyImage            getSobel(const CMyImage& _dx, const CMyImage& _dy);
 
 CMatrix             getGaussKernel(double _sigma);
-SeparableFilterT    getSeparableGauss(const CMatrix& _gauss_kernel);
+SeparableFilterT    getGaussSeparable(const CMatrix& _gauss_kernel);
+SeparableFilterT    getGaussSeparable(double _sigma);
 
 CMyImage            getDownscale(const CMyImage& _image);
 

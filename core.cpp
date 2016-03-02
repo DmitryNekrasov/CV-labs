@@ -88,7 +88,7 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
 
 CMatrix getGaussKernel(double _sigma) {
 
-    int kernel_size = int(std::ceil(3 * _sigma)) * 2 + 1;
+    int kernel_size = smpl::getGaussKernelSize(_sigma);
     CMatrix kernel(kernel_size, kernel_size);
 
     int half = kernel_size / 2;
@@ -102,13 +102,27 @@ CMatrix getGaussKernel(double _sigma) {
     return kernel;
 }
 
-SeparableFilterT getSeparableGauss(const CMatrix& _gauss_kernel) {
+SeparableFilterT getGaussSeparable(const CMatrix& _gauss_kernel) {
 
-    auto kernel_size = _gauss_kernel.getHeight();
+    int kernel_size = _gauss_kernel.getHeight();
     auto separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
 
     for (int i = 0; i < kernel_size; i++) {
         separable_filter.first[i] = separable_filter.second[i] = sqrt(_gauss_kernel.get(i, i));
+    }
+
+    return separable_filter;
+}
+
+SeparableFilterT getGaussSeparable(double _sigma) {
+
+    int kernel_size = smpl::getGaussKernelSize(_sigma);
+    auto separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
+
+    int half = kernel_size / 2;
+
+    for (int i = 0; i < kernel_size; i++) {
+        separable_filter.first[i] = separable_filter.second[i] = sqrt(smpl::gauss(i - half, i - half, _sigma));
     }
 
     return separable_filter;
