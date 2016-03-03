@@ -20,8 +20,8 @@ const double sobel_kernel_x_array[] = {
 
 const double sobel_kernel_y_array[] = {
     -1, -2, -1,
-    0, 0, 0,
-    1, 2, 1
+     0,  0,  0,
+     1,  2,  1
 };
 
 CMyImage            applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
@@ -32,8 +32,8 @@ CMyImage            getSobelDy(const CMyImage& _image);
 CMyImage            getSobel(const CMyImage& _dx, const CMyImage& _dy);
 
 CMatrix             getGaussKernel(double _sigma);
-SeparableFilterT     getGaussSeparable(const CMatrix& _gauss_kernel);
-SeparableFilterT     getGaussSeparable(double _sigma);
+SeparableFilterT    getGaussSeparable(const CMatrix& _gauss_kernel);
+SeparableFilterT    getGaussSeparable(double _sigma);
 
 CMyImage            getDownscale(const CMyImage& _image);
 
