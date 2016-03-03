@@ -8,7 +8,7 @@
 
 namespace mycv {
 
-typedef std::pair<CArray, CArray> SeparableFilterT;
+using SeparableFilterT = std::pair<CArray, CArray>;
 
 const int sobel_kernel_size = 3;
 
@@ -32,8 +32,8 @@ CMyImage            getSobelDy(const CMyImage& _image);
 CMyImage            getSobel(const CMyImage& _dx, const CMyImage& _dy);
 
 CMatrix             getGaussKernel(double _sigma);
-SeparableFilterT    getGaussSeparable(const CMatrix& _gauss_kernel);
-SeparableFilterT    getGaussSeparable(double _sigma);
+SeparableFilterT     getGaussSeparable(const CMatrix& _gauss_kernel);
+SeparableFilterT     getGaussSeparable(double _sigma);
 
 CMyImage            getDownscale(const CMyImage& _image);
 

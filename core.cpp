@@ -26,7 +26,7 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
     return result_image;
 }
 
-CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter) {
+CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT &_filter) {
 
     CMyImage temp_image(_image.getHeight(), _image.getWidth());
 
