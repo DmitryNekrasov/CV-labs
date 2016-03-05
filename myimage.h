@@ -4,6 +4,7 @@
 
 #include <QImage>
 
+#include "array.h"
 #include "defs.h"
 #include "matrix.h"
 
@@ -17,8 +18,9 @@ public:
     CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Mirror);
     CMyImage(CMyImage&&) = default;
 
-    double          get(int _row, int _col) const;
-    BorderEffect    getBorderEffect()       const;
+    double          get(int _row, int _col)     const;
+    double          get(double _y, double _x)   const;
+    BorderEffect    getBorderEffect()           const;
 
     void            setBorderEffect(BorderEffect _border_effect);
     void            normalize();
@@ -52,5 +54,7 @@ inline double CMyImage::get(int _row, int _col) const {
     }
     return 0;
 }
+
+CArray getBArray(double _x, double _y);
 
 } // mycv

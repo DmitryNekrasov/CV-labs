@@ -36,6 +36,7 @@ SeparableFilterT    getGaussSeparable(const CMatrix& _gauss_kernel);
 SeparableFilterT    getGaussSeparable(double _sigma);
 
 CMyImage            getDownscale(const CMyImage& _image);
+CMyImage            getUpscale(const CMyImage& _image);
 
 static inline double getGradient(double _x, double _y) {
     return sqrt(_x * _x + _y * _y);

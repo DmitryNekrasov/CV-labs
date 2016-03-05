@@ -21,6 +21,39 @@ CMyImage::CMyImage(const QImage& _qimage, BorderEffect _border_effect /* = Borde
     }
 }
 
+double CMyImage::get(double _y, double _x) const {
+
+    assert(inRange(int(_y), int(_x)));
+
+    int row = int(_y);
+    int col = int(_x);
+
+    double y = _y - row;
+    double x = _x - col;
+
+    auto b = getBArray(x, y);
+
+    double result_intensity =
+            b[0]  * get(row, col) +
+            b[1]  * get(row, col + 1) +
+            b[2]  * get(row + 1, col) +
+            b[3]  * get(row + 1, col + 1) +
+            b[4]  * get(row, col - 1) +
+            b[5]  * get(row - 1, col) +
+            b[6]  * get(row + 1, col - 1) +
+            b[7]  * get(row - 1, col + 1) +
+            b[8]  * get(row, col + 2) +
+            b[9]  * get(row + 2, col) +
+            b[10] * get(row - 1, col - 1) +
+            b[11] * get(row + 1, col + 2) +
+            b[12] * get(row + 2, col + 1) +
+            b[13] * get(row - 1, col + 2) +
+            b[14] * get(row + 2, col - 1) +
+            b[15] * get(row + 2, col + 2);
+
+    return std::max(0.0, std::min(1.0, result_intensity));
+}
+
 BorderEffect CMyImage::getBorderEffect() const {
     return m_BorderEffect;
 }
@@ -118,6 +151,30 @@ std::pair<int, int> CMyImage::getWrapIndices(int _row, int _col) const {
     }
 
     return std::make_pair(res_row, res_col);
+}
+
+CArray getBArray(double _x, double _y) {
+
+    CArray b(16);
+
+    b[0]  = (_x - 1) * (_x - 2) * (_x + 1) * (_y - 1) * (_y - 2) * (_y + 1) / 4.0;
+    b[1]  = _x * (_x + 1) * (_x - 2) * (_y - 1) * (_y - 2) * (_y + 1) / -4.0;
+    b[2]  = _y * (_x - 1) * (_x - 2) * (_x + 1) * (_y + 1) * (_y - 2) / -4.0;
+    b[3]  = _x * _y * (_x + 1) * (_x - 2) * (_y + 1) * (_y - 2) / 4.0;
+    b[4]  = _x * (_x - 1) * (_x - 2) * (_y - 1) * (_y - 2) * (_y + 1) / -12.0;
+    b[5]  = _y * (_x - 1) * (_x - 2) * (_x + 1) * (_y - 1) * (_y - 2) / -12.0;
+    b[6]  = _x * _y * (_x - 1) * (_x - 2) * (_y + 1) * (_y - 2) / 12.0;
+    b[7]  = _x * _y * (_x + 1) * (_x - 2) * (_y - 1) * (_y - 2) / 12.0;
+    b[8]  = _x * (_x - 1) * (_x + 1) * (_y - 1) * (_y - 2) * (_y + 1) / 12.0;
+    b[9]  = _y * (_x - 1) * (_x - 2) * (_x + 1) * (_y - 1) * (_y + 1) / 12.0;
+    b[10] = _x * _y * (_x - 1) * (_x - 2) * (_y - 1) * (_y - 2) / 36.0;
+    b[11] = _x * _y * (_x - 1) * (_x + 1) * (_y + 1) * (_y - 2) / -12.0;
+    b[12] = _x * _y * (_x + 1) * (_x - 2) * (_y - 1) * (_y + 1) / -12.0;
+    b[13] = _x * _y * (_x - 1) * (_x + 1) * (_y - 1) * (_y - 2) / -36.0;
+    b[14] = _x * _y * (_x - 1) * (_x - 2) * (_y - 1) * (_y + 1) / -36.0;
+    b[15] = _x * _y * (_x - 1) * (_x + 1) * (_y - 1) * (_y + 1) / 36.0;
+
+    return b;
 }
 
 } // mycv

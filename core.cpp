@@ -26,7 +26,7 @@ CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
     return result_image;
 }
 
-CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT &_filter) {
+CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter) {
 
     CMyImage temp_image(_image.getHeight(), _image.getWidth());
 
@@ -136,6 +136,22 @@ CMyImage getDownscale(const CMyImage& _image) {
         for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
             auto intensity = _image.get(i * 2, j * 2);
             result_image.set(i, j, intensity);
+        }
+    }
+
+    return result_image;
+}
+
+CMyImage getUpscale(const CMyImage& _image) {
+
+    CMyImage result_image(_image.getHeight() * 2, _image.getWidth() * 2);
+
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
+            result_image.set(i * 2, j * 2, _image.get(i, j));
+            result_image.set(i * 2, j * 2 + 1, _image.get(double(i), j + 0.5));
+            result_image.set(i * 2 + 1, j * 2, _image.get(i + 0.5, double(j)));
+            result_image.set(i * 2 + 1, j * 2 + 1, _image.get(i + 0.5, j + 0.5));
         }
     }
 
