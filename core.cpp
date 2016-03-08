@@ -167,17 +167,14 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
     GaussPyramidT gauss_pyramid;
     gauss_pyramid.push_back(std::make_tuple(_sigma_0, _sigma_0, applySeparableFilter(_image, gauss)));
 
-    using PairSigmaFilterT  = std::pair<double, SeparableFilterT>;
-    using FiltersT          = std::vector<PairSigmaFilterT>;
-
-    FiltersT filters;
     auto k = pow(2.0, 1.0 / _s);
+    std::vector<SeparableFilterT> filters;
 
     auto old_sigma = _sigma_0;
     for (int i = 0; i < _s; i++) {
         auto new_sigma = old_sigma * k;
         auto sigma = smpl::getSigmaB(new_sigma, old_sigma);
-        filters.push_back(std::make_pair(sigma, getGaussSeparable(sigma)));
+        filters.push_back(getGaussSeparable(sigma));
         old_sigma = new_sigma;
     }
 
@@ -191,7 +188,7 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
             auto& last_img = std::get<toUType(PyramidLayer::Image)>(layer);
 
             gauss_pyramid.push_back(std::make_tuple(last_current_sigma * k, last_effective_sigma * k,
-                                                    applySeparableFilter(last_img, filters[i].second)));
+                                                    applySeparableFilter(last_img, filters[i])));
         }
 
         if (octave != _n - 1) {
