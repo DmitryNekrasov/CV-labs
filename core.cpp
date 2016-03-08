@@ -165,7 +165,7 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
     auto gauss = getGaussSeparable(sigma_b);
 
     GaussPyramidT gauss_pyramid;
-    gauss_pyramid.push_back(std::make_tuple(_sigma_0, _sigma_0, applySeparableFilter(_image, gauss)));
+    gauss_pyramid.emplace_back(_sigma_0, _sigma_0, applySeparableFilter(_image, gauss));
 
     auto k = pow(2.0, 1.0 / _s);
     std::vector<SeparableFilterT> filters;
@@ -187,8 +187,8 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
             auto last_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(layer);
             auto& last_img = std::get<toUType(PyramidLayer::Image)>(layer);
 
-            gauss_pyramid.push_back(std::make_tuple(last_current_sigma * k, last_effective_sigma * k,
-                                                    applySeparableFilter(last_img, filters[size_t(i)])));
+            gauss_pyramid.emplace_back(last_current_sigma * k, last_effective_sigma * k,
+                                       applySeparableFilter(last_img, filters[size_t(i)]));
         }
 
         if (octave != _n - 1) {
@@ -198,8 +198,7 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
             auto effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(layer);
             auto& image = std::get<toUType(PyramidLayer::Image)>(layer);
 
-            gauss_pyramid.push_back(std::make_tuple(_sigma_0, effective_sigma,
-                                                    getDownscale(image)));
+            gauss_pyramid.emplace_back(_sigma_0, effective_sigma, getDownscale(image));
         }
     }
 
