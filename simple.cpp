@@ -23,6 +23,10 @@ int getGaussKernelSize(double _sigma) {
     return int(std::ceil(3 * _sigma)) * 2 + 1;
 }
 
+double getSigmaB(double _sigma_c, double _sigma_a) {
+    return sqrt(_sigma_c * _sigma_c - _sigma_a * _sigma_a);
+}
+
 } // smpl
 
 } // mycv

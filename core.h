@@ -8,7 +8,9 @@
 
 namespace mycv {
 
-using SeparableFilterT = std::pair<CArray, CArray>;
+using SeparableFilterT  = std::pair<CArray, CArray>;
+using PyramidLayerT     = std::tuple<double, double, CMyImage>;
+using GaussPyramidT     = std::vector<PyramidLayerT>;
 
 const int sobel_kernel_size = 3;
 
@@ -37,6 +39,9 @@ SeparableFilterT    getGaussSeparable(double _sigma);
 
 CMyImage            getDownscale(const CMyImage& _image);
 CMyImage            getUpscale(const CMyImage& _image);
+
+GaussPyramidT       getGaussPyramid(const CMyImage& _image, const int _n, const int _s,
+                                    const double _sigma_a, const double _sigma_0);
 
 static inline double getGradient(double _x, double _y) {
     return sqrt(_x * _x + _y * _y);

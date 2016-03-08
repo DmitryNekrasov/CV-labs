@@ -158,4 +158,55 @@ CMyImage getUpscale(const CMyImage& _image) {
     return result_image;
 }
 
+GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s,
+                              const double _sigma_a, const double _sigma_0)
+{
+    auto sigma_b = smpl::getSigmaB(_sigma_0, _sigma_a);
+    auto gauss = getGaussSeparable(sigma_b);
+
+    GaussPyramidT gauss_pyramid;
+    gauss_pyramid.push_back(std::make_tuple(_sigma_0, _sigma_0, applySeparableFilter(_image, gauss)));
+
+    using PairSigmaFilterT  = std::pair<double, SeparableFilterT>;
+    using FiltersT          = std::vector<PairSigmaFilterT>;
+
+    FiltersT filters;
+    auto k = pow(2.0, 1.0 / _s);
+
+    auto old_sigma = _sigma_0;
+    for (int i = 0; i < _s; i++) {
+        auto new_sigma = old_sigma * k;
+        auto sigma = smpl::getSigmaB(new_sigma, old_sigma);
+        filters.push_back(std::make_pair(sigma, getGaussSeparable(sigma)));
+        old_sigma = new_sigma;
+    }
+
+    for (int octave = 0; octave < _n; octave++) {
+        for (int i = 0; i < _s; i++) {
+
+            const auto& layer = gauss_pyramid.back();
+
+            auto last_current_sigma = std::get<toUType(PyramidLayer::CurrentSigma)>(layer);
+            auto last_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(layer);
+            auto& last_img = std::get<toUType(PyramidLayer::Image)>(layer);
+
+            gauss_pyramid.push_back(std::make_tuple(last_current_sigma * k, last_effective_sigma * k,
+                                                    applySeparableFilter(last_img, filters[i].second)));
+        }
+
+        if (octave != _n - 1) {
+
+            const auto& layer = gauss_pyramid.back();
+
+            auto effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(layer);
+            auto& image = std::get<toUType(PyramidLayer::Image)>(layer);
+
+            gauss_pyramid.push_back(std::make_tuple(_sigma_0, effective_sigma,
+                                                    getDownscale(image)));
+        }
+    }
+
+    return gauss_pyramid;
+}
+
 } // mycv
