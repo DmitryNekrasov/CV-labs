@@ -8,8 +8,7 @@
 #include "simple.h"
 
 static bool g_BuildMinusOneOctave = false;
-
-static const int min_size = 64;
+static const int g_MinSize = 64;
 
 int main() {
 
@@ -19,8 +18,8 @@ int main() {
     int s = 3;
     double sigma_a = 0.5;
     double sigma_0 = 1.6;
-    auto n = int(std::min(std::log2(double(image_in.getHeight()) / min_size),
-                      std::log2(double(image_in.getWidth()) / min_size))) + 1;
+    auto n = int(std::min(std::log2(double(image_in.getHeight()) / g_MinSize),
+                      std::log2(double(image_in.getWidth()) / g_MinSize))) + 1;
 
     mycv::GaussPyramidT gauss_pyramid;
 
