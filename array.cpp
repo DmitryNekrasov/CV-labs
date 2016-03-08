@@ -5,7 +5,7 @@ namespace mycv {
 CArray::CArray(int _size)
     : m_Size(_size)
 {
-    m_Array = std::make_unique<double[]>(m_Size);
+    m_Array = std::make_unique<double[]>(size_t(m_Size));
 }
 
 int CArray::getSize() const {
@@ -13,7 +13,7 @@ int CArray::getSize() const {
 }
 
 double& CArray::operator[](int _index) const {
-    return m_Array[_index];
+    return m_Array[size_t(_index)];
 }
 
 } // mycv
