@@ -15,7 +15,7 @@ int main() {
     int n = 3;
     int s = 3;
     double sigma_a = 0.5;
-    double sigma_0 = 1;
+    double sigma_0 = 1.6;
 
     auto gauss_pyramid = mycv::getGaussPyramid(image_in, n, s, sigma_a, sigma_0);
 
@@ -33,6 +33,13 @@ int main() {
 
         img.toQImagePtr()->save(name.c_str());
     }
+
+    int y = 120;
+    int x = 350;
+    auto intensity1 = mycv::getL(image_in, gauss_pyramid, y, x, 12.0);
+    auto intensity2 = mycv::getL(image_in, gauss_pyramid, y, x, 7.0);
+
+    std::cout << intensity1 << " " << intensity2 << std::endl;
 
     image_in.toQImagePtr()->save("/Users/ScanNorOne/Desktop/grayscale.png");
 

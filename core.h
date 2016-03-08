@@ -42,6 +42,7 @@ CMyImage            getUpscale(const CMyImage& _image);
 
 GaussPyramidT       getGaussPyramid(const CMyImage& _image, const int _n, const int _s,
                                     const double _sigma_a, const double _sigma_0);
+double              getL(const CMyImage& _image, const GaussPyramidT& _gauss_pyramid, int _y, int _x, double _sigma);
 
 static inline double getGradient(double _x, double _y) {
     return sqrt(_x * _x + _y * _y);

@@ -188,7 +188,7 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
             auto& last_img = std::get<toUType(PyramidLayer::Image)>(layer);
 
             gauss_pyramid.push_back(std::make_tuple(last_current_sigma * k, last_effective_sigma * k,
-                                                    applySeparableFilter(last_img, filters[i])));
+                                                    applySeparableFilter(last_img, filters[size_t(i)])));
         }
 
         if (octave != _n - 1) {
@@ -204,6 +204,23 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
     }
 
     return gauss_pyramid;
+}
+
+double getL(const CMyImage& _image, const GaussPyramidT& _gauss_pyramid, int _y, int _x, double _sigma) {
+
+    auto target_layer = std::min_element(_gauss_pyramid.begin(), _gauss_pyramid.end(),
+    [_sigma](const auto& _first_layer, const auto& _second_layer) {
+        auto first_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_first_layer);
+        auto second_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_second_layer);
+        return fabs(first_effective_sigma - _sigma) < fabs(second_effective_sigma - _sigma);
+    });
+
+    auto& image = std::get<toUType(PyramidLayer::Image)>(*target_layer);
+
+    auto row = int(double(image.getHeight()) / _image.getHeight() * _y);
+    auto col = int(double(image.getWidth()) / _image.getWidth() * _x);
+
+    return image.get(row, col);
 }
 
 } // mycv
