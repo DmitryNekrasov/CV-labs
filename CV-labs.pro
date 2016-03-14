@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     myimage.cpp \
     core.cpp \
     simple.cpp \
-    array.cpp
+    array.cpp \
+    poi.cpp
 
 HEADERS += \
     matrix.h \
@@ -22,4 +23,5 @@ HEADERS += \
     defs.h \
     core.h \
     simple.h \
-    array.h
+    array.h \
+    poi.h
