@@ -8,6 +8,7 @@
 #include "matrix.h"
 #include "myimage.h"
 #include "poi.h"
+#include "qimagegenerator.h"
 #include "simple.h"
 
 int main() {
@@ -19,21 +20,10 @@ int main() {
 
     std::cout << moravec_poi.size() << std::endl;
 
-    auto qimg = image_in.toQImagePtr();
+    auto with_points = mycv::qimg::drawPoints(image_in, moravec_poi);
 
-    QPainter painter(qimg.get());
-    painter.setPen(Qt::red);
-
-    for (const auto& point : moravec_poi) {
-        auto y = point.first;
-        auto x = point.second;
-        painter.drawPoint(x - 1, y);
-        painter.drawPoint(x, y - 1);
-        painter.drawPoint(x, y + 1);
-        painter.drawPoint(x + 1, y);
-    }
-
-    qimg->save("/Users/ScanNorOne/Desktop/out.png");
+    image_in.toQImagePtr()->save("/Users/ScanNorOne/Desktop/grayscale.png");
+    with_points->save("/Users/ScanNorOne/Desktop/moravec.png");
 
     return 0;
 }
