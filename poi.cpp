@@ -1,6 +1,8 @@
 #include <iostream>
 
+#include "core.h"
 #include "poi.h"
+#include "simple.h"
 
 namespace mycv {
 
@@ -21,7 +23,7 @@ double getC(const CMyImage& _image, int _w_size, int _x, int _y, int _dx, int _d
     return sum;
 }
 
-CMyImage applyMoravec(const CMyImage& _image, int _w_size) {
+CMyImage applyMoravec(const CMyImage& _image, int _w_size /* = 3 */) {
 
     CMyImage result(_image.getHeight(), _image.getWidth());
 
@@ -43,22 +45,63 @@ CMyImage applyMoravec(const CMyImage& _image, int _w_size) {
     return result;
 }
 
-PointsT getMoravecPoi(const CMyImage& _image, int _w_size, int _p_size, double _threshold) {
+CMyImage applyHarris(const CMyImage& _image, int _w_size /* = 3 */, double _k /* = 0.06 */) {
 
-    auto s = applyMoravec(_image, _w_size);
+    auto sobel_dx = getSobelDx(_image);
+    auto sobel_dy = getSobelDy(_image);
+
+    CMyImage a(_image.getHeight(), _image.getWidth());
+    CMyImage b(_image.getHeight(), _image.getWidth());
+    CMyImage c(_image.getHeight(), _image.getWidth());
+
+    auto w_half = _w_size / 2;
+
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
+            double sum_a = 0, sum_b = 0, sum_c = 0;
+            for (int u = -w_half; u <= w_half; u++) {
+                for (int v = -w_half; v <= w_half; v++) {
+                    auto i_x = sobel_dx.get(i + u, j + v);
+                    auto i_y = sobel_dy.get(i + u, j + v);
+                    sum_a += i_x * i_x;
+                    sum_b += i_x * i_y;
+                    sum_c += i_y * i_y;
+                }
+            }
+            a.set(i, j, sum_a);
+            b.set(i, j, sum_b);
+            c.set(i, j, sum_c);
+        }
+    }
+
+    CMyImage result(_image.getHeight(), _image.getWidth());
+
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
+            auto harris = a.get(i, j) * c.get(i, j) - smpl::sqr(b.get(i, j)) -
+                    _k * smpl::sqr(a.get(i, j) + c.get(i, j));
+            result.set(i, j, harris);
+        }
+    }
+
+    return result;
+}
+
+PointsT getPoi(const CMyImage& _image, double _threshold, int _p_size /* = 3 */) {
+
     auto p_half = _p_size / 2;
 
     PointsT points;
 
-    for (int i = 0, ei = s.getHeight(); i < ei; i++) {
-        for (int j = 0, ej = s.getWidth(); j < ej; j++) {
+    for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
             bool is_correct = true;
             for (int px = -p_half; px <= p_half && is_correct; px++) {
                 for (int py = -p_half; py <= p_half && is_correct; py++) {
-                    is_correct = s.get(i, j) >= s.get(i + px, j + py);
+                    is_correct = _image.get(i, j) >= _image.get(i + px, j + py);
                 }
             }
-            if (is_correct && s.get(i, j) > _threshold) {
+            if (is_correct && _image.get(i, j) > _threshold) {
                 points.emplace_back(i, j);
             }
         }

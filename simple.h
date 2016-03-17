@@ -11,6 +11,8 @@ double  gauss(int _x, int _y, double _sigma);
 int     getGaussKernelSize(double _sigma);
 double  getSigmaB(double _sigma_c, double _sigma_a);
 
+double  sqr(double _x);
+
 } // smpl
 
 } // mycv

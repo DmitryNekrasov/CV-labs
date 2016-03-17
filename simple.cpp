@@ -27,6 +27,10 @@ double getSigmaB(double _sigma_c, double _sigma_a) {
     return sqrt(_sigma_c * _sigma_c - _sigma_a * _sigma_a);
 }
 
+double sqr(double _x) {
+    return _x * _x;
+}
+
 } // smpl
 
 } // mycv
