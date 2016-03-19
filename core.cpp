@@ -227,11 +227,11 @@ GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s
 double getL(const CMyImage& _image, const GaussPyramidT& _gauss_pyramid, int _y, int _x, double _sigma) {
 
     auto target_layer = std::min_element(_gauss_pyramid.begin(), _gauss_pyramid.end(),
-    [_sigma](const auto& _first_layer, const auto& _second_layer) {
-        auto first_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_first_layer);
-        auto second_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_second_layer);
-        return fabs(first_effective_sigma - _sigma) < fabs(second_effective_sigma - _sigma);
-    });
+        [_sigma](const auto& _first_layer, const auto& _second_layer) {
+            auto first_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_first_layer);
+            auto second_effective_sigma = std::get<toUType(PyramidLayer::EffectiveSigma)>(_second_layer);
+            return fabs(first_effective_sigma - _sigma) < fabs(second_effective_sigma - _sigma);
+        });
 
     auto& image = std::get<toUType(PyramidLayer::Image)>(*target_layer);
 

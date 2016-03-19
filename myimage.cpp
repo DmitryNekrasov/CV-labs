@@ -74,9 +74,9 @@ void CMyImage::normalize() {
     auto min_intensity = *minmax.first;
     auto max_intensity = *minmax.second;
     std::transform(begin(), end(), begin(),
-    [=](const auto& intensity) {
-        return (intensity - min_intensity) / double(max_intensity - min_intensity);
-    });
+        [&](const auto& intensity) {
+            return (intensity - min_intensity) / double(max_intensity - min_intensity);
+        });
 }
 
 std::pair<int, int> CMyImage::getClampIndices(int _row, int _col) const {
