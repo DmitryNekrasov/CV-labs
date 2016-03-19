@@ -23,7 +23,7 @@ double getC(const CMyImage& _image, int _w_size, int _x, int _y, int _dx, int _d
     return sum;
 }
 
-CMyImage applyMoravec(const CMyImage& _image, int _w_size /* = 3 */) {
+CMyImage applyMoravec(const CMyImage& _image, int _w_size) {
 
     CMyImage result(_image.getHeight(), _image.getWidth());
 
@@ -45,7 +45,7 @@ CMyImage applyMoravec(const CMyImage& _image, int _w_size /* = 3 */) {
     return result;
 }
 
-CMyImage applyHarris(const CMyImage& _image, int _w_size /* = 3 */, double _k /* = 0.06 */) {
+CMyImage applyHarris(const CMyImage& _image, int _w_size, double _k /* = 0.06 */) {
 
     auto sobel_dx = getSobelDx(_image);
     auto sobel_dy = getSobelDy(_image);
@@ -87,7 +87,7 @@ CMyImage applyHarris(const CMyImage& _image, int _w_size /* = 3 */, double _k /*
     return result;
 }
 
-PointsT getPoi(const CMyImage& _image, double _threshold, int _p_size /* = 3 */) {
+PointsT getPoi(const CMyImage& _image, double _threshold, int _p_size) {
 
     auto p_half = _p_size / 2;
 
@@ -98,16 +98,42 @@ PointsT getPoi(const CMyImage& _image, double _threshold, int _p_size /* = 3 */)
             bool is_correct = true;
             for (int px = -p_half; px <= p_half && is_correct; px++) {
                 for (int py = -p_half; py <= p_half && is_correct; py++) {
-                    is_correct = _image.get(i, j) >= _image.get(i + px, j + py);
+                    if (px != 0 || py != 0) {
+                        is_correct = _image.get(i, j) > _image.get(i + px, j + py);
+                    }
                 }
             }
             if (is_correct && _image.get(i, j) > _threshold) {
-                points.emplace_back(i, j);
+                points.emplace_back(i, j, _image.get(i, j));
             }
         }
     }
 
     return points;
+}
+
+PointsT filterPoint(const PointsT& _points, size_t _target_quantity) {
+
+    PointsT filter_points(_points);
+
+    int r = 1;
+
+    while (filter_points.size() > _target_quantity) {
+        filter_points.remove_if(
+            [filter_points, r](const auto& _point) {
+                for (const auto& point : filter_points) {
+                    auto dst = smpl::getDistance(std::get<toUType(Poi::X)>(_point), std::get<toUType(Poi::Y)>(_point),
+                                                 std::get<toUType(Poi::X)>(point), std::get<toUType(Poi::Y)>(point));
+                    if (dst < r && std::get<toUType(Poi::OperatorValue)>(_point) < std::get<toUType(Poi::OperatorValue)>(point)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        r++;
+    }
+
+    return filter_points;
 }
 
 } // poi

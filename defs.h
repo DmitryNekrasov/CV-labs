@@ -22,4 +22,10 @@ enum class PyramidLayer {
     Image
 };
 
+enum class Poi {
+    X,
+    Y,
+    OperatorValue
+};
+
 } // mycv

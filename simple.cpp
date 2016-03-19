@@ -31,6 +31,10 @@ double sqr(double _x) {
     return _x * _x;
 }
 
+double getDistance(int _x1, int _y1, int _x2, int _y2) {
+    return sqrt(sqr(_x1 - _x2) + sqr(_y1 - _y2));
+}
+
 } // smpl
 
 } // mycv
