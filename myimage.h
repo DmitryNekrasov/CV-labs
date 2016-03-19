@@ -13,28 +13,23 @@ namespace mycv {
 class CMyImage : public CMatrix
 {
 public:
-
     CMyImage(int _height, int _width, BorderEffect _border_effect = BorderEffect::Mirror);
     CMyImage(const QImage& _qimage, BorderEffect _border_effect = BorderEffect::Mirror);
-    CMyImage(CMyImage&&) = default;
 
-    double          get(int _row, int _col)     const;
-    double          get(double _y, double _x)   const;
-    BorderEffect    getBorderEffect()           const;
+    double get(int _row, int _col) const;
+    double get(double _y, double _x) const;
 
-    void            setBorderEffect(BorderEffect _border_effect);
-    void            normalize();
+    BorderEffect getBorderEffect() const;
+    void setBorderEffect(BorderEffect _border_effect);
 
-    std::unique_ptr<QImage> toQImagePtr()   const;
-
-    CMyImage& operator=(CMyImage&&) = default;
+    void normalize();
 
 private:
+    std::pair<int, int> getClampIndices(int _row, int _col) const;
+    std::pair<int, int> getMirrorIndices(int _row, int _col) const;
+    std::pair<int, int> getWrapIndices(int _row, int _col) const;
 
-    std::pair<int, int> getClampIndices(int _row, int _col)     const;
-    std::pair<int, int> getMirrorIndices(int _row, int _col)    const;
-    std::pair<int, int> getWrapIndices(int _row, int _col)      const;
-
+private:
     BorderEffect m_BorderEffect;
 };
 
@@ -54,7 +49,5 @@ inline double CMyImage::get(int _row, int _col) const {
     }
     return 0;
 }
-
-CArray getBArray(double _x, double _y);
 
 } // mycv

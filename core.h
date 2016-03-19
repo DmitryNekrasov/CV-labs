@@ -8,44 +8,26 @@
 
 namespace mycv {
 
-using SeparableFilterT  = std::pair<CArray, CArray>;
-using PyramidLayerT     = std::tuple<double, double, CMyImage>;
-using GaussPyramidT     = std::vector<PyramidLayerT>;
+using SeparableFilterT = std::pair<CArray, CArray>;
+using PyramidLayerT = std::tuple<double, double, CMyImage>;
+using GaussPyramidT = std::vector<PyramidLayerT>;
 
-const int sobel_kernel_size = 3;
+CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
+CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter);
 
-const double sobel_kernel_x_array[] = {
-    -1, 0, 1,
-    -2, 0, 2,
-    -1, 0, 1
-};
+CMyImage getSobelDx(const CMyImage& _image);
+CMyImage getSobelDy(const CMyImage& _image);
+CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy);
 
-const double sobel_kernel_y_array[] = {
-    -1, -2, -1,
-     0,  0,  0,
-     1,  2,  1
-};
+CMatrix getGaussKernel(double _sigma);
+SeparableFilterT getGaussSeparable(const CMatrix& _gauss_kernel);
+SeparableFilterT getGaussSeparable(double _sigma);
 
-CMyImage            applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
-CMyImage            applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter);
+CMyImage getDownscale(const CMyImage& _image);
+CMyImage getUpscale(const CMyImage& _image);
 
-CMyImage            getSobelDx(const CMyImage& _image);
-CMyImage            getSobelDy(const CMyImage& _image);
-CMyImage            getSobel(const CMyImage& _dx, const CMyImage& _dy);
-
-CMatrix             getGaussKernel(double _sigma);
-SeparableFilterT    getGaussSeparable(const CMatrix& _gauss_kernel);
-SeparableFilterT    getGaussSeparable(double _sigma);
-
-CMyImage            getDownscale(const CMyImage& _image);
-CMyImage            getUpscale(const CMyImage& _image);
-
-GaussPyramidT       getGaussPyramid(const CMyImage& _image, const int _n, const int _s,
+GaussPyramidT getGaussPyramid(const CMyImage& _image, const int _n, const int _s,
                                     const double _sigma_a, const double _sigma_0);
-double              getL(const CMyImage& _image, const GaussPyramidT& _gauss_pyramid, int _y, int _x, double _sigma);
-
-static inline double getGradient(double _x, double _y) {
-    return sqrt(_x * _x + _y * _y);
-}
+double getL(const CMyImage& _image, const GaussPyramidT& _gauss_pyramid, int _y, int _x, double _sigma);
 
 } // mycv

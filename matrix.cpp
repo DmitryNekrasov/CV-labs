@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "matrix.h"
+
+#include <iostream>
 
 namespace mycv {
 
@@ -23,17 +23,17 @@ CMatrix::CMatrix(int _height, int _width, const double _array[])
     std::copy(_array, _array + m_Height * m_Width, m_IntensityMap.get());
 }
 
+void CMatrix::set(int _row, int _col, double _value) {
+    assert(inRange(_row, _col));
+    m_IntensityMap[getIndex(_row, _col)] = _value;
+}
+
 int CMatrix::getHeight() const {
     return m_Height;
 }
 
 int CMatrix::getWidth() const {
     return m_Width;
-}
-
-void CMatrix::set(int _row, int _col, double _value) {
-    assert(inRange(_row, _col));
-    m_IntensityMap[getIndex(_row, _col)] = _value;
 }
 
 double* CMatrix::begin() {

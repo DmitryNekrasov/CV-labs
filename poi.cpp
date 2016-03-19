@@ -1,14 +1,15 @@
+#include "poi.h"
+
 #include <iostream>
 
 #include "core.h"
-#include "poi.h"
 #include "simple.h"
 
 namespace mycv {
 
 namespace poi {
 
-double getC(const CMyImage& _image, int _w_size, int _x, int _y, int _dx, int _dy) {
+static double getC(const CMyImage& _image, int _w_size, int _x, int _y, int _dx, int _dy) {
 
     double sum = 0;
     auto w_half = _w_size / 2;
@@ -29,7 +30,7 @@ CMyImage applyMoravec(const CMyImage& _image, int _w_size) {
 
     for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
-            double s = 10;
+            double s = std::numeric_limits<double>::max();
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     if (dx != 0 && dy != 0) {
@@ -120,7 +121,7 @@ PointsT filterPoint(const PointsT& _points, size_t _target_quantity) {
 
     while (filter_points.size() > _target_quantity) {
         filter_points.remove_if(
-            [filter_points, r](const auto& _point) {
+            [&](const auto& _point) {
                 for (const auto& point : filter_points) {
                     auto dst = smpl::getDistance(std::get<toUType(Poi::X)>(_point), std::get<toUType(Poi::Y)>(_point),
                                                  std::get<toUType(Poi::X)>(point), std::get<toUType(Poi::Y)>(point));

@@ -8,34 +8,32 @@ namespace mycv {
 class CMatrix
 {
 public:
-
     CMatrix();
     CMatrix(int _height, int _width);
     CMatrix(int _height, int _width, const double _array[]);
 
-    double  get(int _row, int _col) const;
-    int     getHeight()             const;
-    int     getWidth()              const;
-
+    double get(int _row, int _col) const;
     void set(int _row, int _col, double _value);
 
-    double*         begin();
-    double*         end();
-    const double*   begin()         const;
-    const double*   end()           const;
+    int getHeight() const;
+    int getWidth() const;
+
+    double* begin();
+    double* end();
+    const double* begin() const;
+    const double* end() const;
 
 protected:
-
-    bool    inRange(int _row, int _col)     const;
+    bool inRange(int _row, int _col) const;
 
 private:
+    void initializeIntensityMap();
+    size_t getIndex(int _row, int _col) const;
 
-    void    initializeIntensityMap();
-    size_t  getIndex(int _row, int _col)    const;
-
-    std::unique_ptr<double[]>   m_IntensityMap;
-    int                         m_Height;
-    int                         m_Width;
+private:
+    std::unique_ptr<double[]> m_IntensityMap;
+    int m_Height;
+    int m_Width;
 
 };
 

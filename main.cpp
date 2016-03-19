@@ -34,13 +34,12 @@ int main() {
     std::cout << "Number of Harris poi: " << harris_poi.size() << std::endl;
     std::cout << "Number of filtered Harris poi: " << filtered_harris_poi.size() << std::endl;
 
-    moravec.normalize();
-    moravec.toQImagePtr()->save("/Users/ScanNorOne/Desktop/moravec.png");
+    mycv::qimg::toQImagePtr(moravec)->save("/Users/ScanNorOne/Desktop/moravec.png");
     moravec_with_points->save("/Users/ScanNorOne/Desktop/moravec_poi.png");
     moravec_with_filtered_points->save("/Users/ScanNorOne/Desktop/moravec_filtered_poi.png");
 
     harris.normalize();
-    harris.toQImagePtr()->save("/Users/ScanNorOne/Desktop/harris.png");
+    mycv::qimg::toQImagePtr(harris)->save("/Users/ScanNorOne/Desktop/harris.png");
     harris_with_points->save("/Users/ScanNorOne/Desktop/harris_poi.png");
     harris_with_filtered_points->save("/Users/ScanNorOne/Desktop/harris_filtered_poi.png");
 

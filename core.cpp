@@ -1,7 +1,26 @@
 #include "core.h"
+
 #include "simple.h"
 
 namespace mycv {
+
+static const int sobel_kernel_size = 3;
+
+static const double sobel_kernel_x_array[] = {
+    -1, 0, 1,
+    -2, 0, 2,
+    -1, 0, 1
+};
+
+static const double sobel_kernel_y_array[] = {
+    -1, -2, -1,
+     0,  0,  0,
+     1,  2,  1
+};
+
+static inline double getGradient(double _x, double _y) {
+    return sqrt(_x * _x + _y * _y);
+}
 
 CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
 
