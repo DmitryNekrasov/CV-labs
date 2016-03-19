@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <vector>
 
 #include "matrix.h"
 #include "myimage.h"
@@ -10,7 +10,7 @@ namespace mycv {
 namespace poi {
 
 using PointT = std::tuple<int, int, double>;
-using PointsT = std::list<PointT>;
+using PointsT = std::vector<PointT>;
 
 CMyImage applyMoravec(const CMyImage& _image, int _w_size);
 CMyImage applyHarris(const CMyImage& _image, int _w_size, double _k = 0.06);

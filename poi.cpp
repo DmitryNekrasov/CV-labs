@@ -120,7 +120,7 @@ PointsT filterPoint(const PointsT& _points, size_t _target_quantity) {
     int r = 1;
 
     while (filter_points.size() > _target_quantity) {
-        filter_points.remove_if(
+        filter_points.erase(std::remove_if(filter_points.begin(), filter_points.end(),
             [&](const auto& _point) {
                 for (const auto& point : filter_points) {
                     auto dst = smpl::getDistance(std::get<toUType(Poi::X)>(_point), std::get<toUType(Poi::Y)>(_point),
@@ -130,7 +130,7 @@ PointsT filterPoint(const PointsT& _points, size_t _target_quantity) {
                     }
                 }
                 return false;
-            });
+            }), filter_points.end());
         r++;
     }
 
