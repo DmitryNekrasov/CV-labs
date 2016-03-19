@@ -30,7 +30,7 @@ CMyImage applyMoravec(const CMyImage& _image, int _w_size) {
 
     for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
-            double s = std::numeric_limits<double>::max();
+            auto s = std::numeric_limits<double>::max();
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     if (dx != 0 && dy != 0) {
