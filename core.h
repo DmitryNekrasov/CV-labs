@@ -18,6 +18,7 @@ CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _f
 CMyImage getSobelDx(const CMyImage& _image);
 CMyImage getSobelDy(const CMyImage& _image);
 CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy);
+CMyImage getSobel(const CMyImage& _image);
 
 CMatrix getGaussKernel(double _sigma);
 SeparableFilterT getGaussSeparable(const CMatrix& _gauss_kernel);

@@ -105,6 +105,12 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
     return result_image;
 }
 
+CMyImage getSobel(const CMyImage& _image) {
+    auto sobel_dx = getSobelDx(_image);
+    auto sobel_dy = getSobelDy(_image);
+    return getSobel(sobel_dx, sobel_dy);
+}
+
 CMatrix getGaussKernel(double _sigma) {
 
     int kernel_size = smpl::getGaussKernelSize(_sigma);
