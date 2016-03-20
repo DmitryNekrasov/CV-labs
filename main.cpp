@@ -13,35 +13,19 @@
 
 int main() {
 
-    QImage qimage_in("/Users/ScanNorOne/Desktop/lena_std.tif");
+    QImage qimage_in("/Users/ScanNorOne/Desktop/laferrari.jpg");
     mycv::CMyImage image_in(qimage_in);
 
-    auto moravec = mycv::poi::applyMoravec(image_in, 3);
-    auto moravec_poi = mycv::poi::getPoi(moravec, 0.15, 5);
-    auto filtered_morave_poi = mycv::poi::filterPoint(moravec_poi, 100);
-    auto moravec_with_points = mycv::qimg::drawPoints(image_in, moravec_poi);
-    auto moravec_with_filtered_points = mycv::qimg::drawPoints(image_in, filtered_morave_poi);
+    auto sobel_dx = mycv::getSobelDx(image_in);
+    auto sobel_dy = mycv::getSobelDy(image_in);
+    auto gradient_values = mycv::getSobelValue(sobel_dx, sobel_dy);
+    auto gradient_directions = mycv::getSobelDirection(sobel_dx, sobel_dy);
 
-    std::cout << "Number of Moravec poi: " << moravec_poi.size() << std::endl;
-    std::cout << "Number of filtered Moravec poi: " << filtered_morave_poi.size() << std::endl;
+    gradient_values.normalize();
+    gradient_directions.normalize();
 
-    auto harris = mycv::poi::applyHarris(image_in, 3);
-    auto harris_poi = mycv::poi::getPoi(harris, 1.0, 5);
-    auto filtered_harris_poi = mycv::poi::filterPoint(harris_poi, 100);
-    auto harris_with_points = mycv::qimg::drawPoints(image_in, harris_poi);
-    auto harris_with_filtered_points = mycv::qimg::drawPoints(image_in, filtered_harris_poi);
-
-    std::cout << "Number of Harris poi: " << harris_poi.size() << std::endl;
-    std::cout << "Number of filtered Harris poi: " << filtered_harris_poi.size() << std::endl;
-
-    mycv::qimg::toQImagePtr(moravec)->save("/Users/ScanNorOne/Desktop/moravec.png");
-    moravec_with_points->save("/Users/ScanNorOne/Desktop/moravec_poi.png");
-    moravec_with_filtered_points->save("/Users/ScanNorOne/Desktop/moravec_filtered_poi.png");
-
-    harris.normalize();
-    mycv::qimg::toQImagePtr(harris)->save("/Users/ScanNorOne/Desktop/harris.png");
-    harris_with_points->save("/Users/ScanNorOne/Desktop/harris_poi.png");
-    harris_with_filtered_points->save("/Users/ScanNorOne/Desktop/harris_filtered_poi.png");
+    mycv::qimg::toQImagePtr(gradient_values)->save("/Users/ScanNorOne/Desktop/values.png");
+    mycv::qimg::toQImagePtr(gradient_directions)->save("/Users/ScanNorOne/Desktop/directions.png");
 
     return 0;
 }

@@ -18,10 +18,6 @@ static const double sobel_kernel_y_array[] = {
      1,  2,  1
 };
 
-static inline double getGradient(double _x, double _y) {
-    return sqrt(_x * _x + _y * _y);
-}
-
 CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel) {
 
     CMyImage result_image(_image.getHeight(), _image.getWidth());
@@ -91,13 +87,17 @@ CMyImage getSobelDy(const CMyImage& _image) {
     return result_image;
 }
 
-CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
+static inline double getGradientValue(double _gx, double _gy) {
+    return sqrt(smpl::sqr(_gx) + smpl::sqr(_gy));
+}
+
+CMyImage getSobelValue(const CMyImage& _dx, const CMyImage& _dy) {
 
     CMyImage result_image(_dx.getHeight(), _dx.getWidth());
 
     for (int i = 0, ei = result_image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
-            auto gradient = getGradient(_dx.get(i, j), _dy.get(i, j));
+            auto gradient = getGradientValue(_dx.get(i, j), _dy.get(i, j));
             result_image.set(i, j, gradient);
         }
     }
@@ -105,10 +105,22 @@ CMyImage getSobel(const CMyImage& _dx, const CMyImage& _dy) {
     return result_image;
 }
 
-CMyImage getSobel(const CMyImage& _image) {
-    auto sobel_dx = getSobelDx(_image);
-    auto sobel_dy = getSobelDy(_image);
-    return getSobel(sobel_dx, sobel_dy);
+static inline double getGradientDirection(double _gx, double _gy) {
+    return atan2(_gy, _gx);
+}
+
+CMyImage getSobelDirection(const CMyImage& _dx, const CMyImage& _dy) {
+
+    CMyImage result_image(_dx.getHeight(), _dx.getWidth());
+
+    for (int i = 0, ei = result_image.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
+            auto direction = getGradientDirection(_dx.get(i, j), _dy.get(i, j));
+            result_image.set(i, j, direction);
+        }
+    }
+
+    return result_image;
 }
 
 CMatrix getGaussKernel(double _sigma) {
