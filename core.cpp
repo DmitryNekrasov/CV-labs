@@ -91,7 +91,7 @@ static inline double getGradientValue(double _gx, double _gy) {
     return sqrt(smpl::sqr(_gx) + smpl::sqr(_gy));
 }
 
-CMyImage getSobelValue(const CMyImage& _dx, const CMyImage& _dy) {
+CMyImage getGradientValues(const CMyImage& _dx, const CMyImage& _dy) {
 
     CMyImage result_image(_dx.getHeight(), _dx.getWidth());
 
@@ -109,7 +109,7 @@ static inline double getGradientDirection(double _gx, double _gy) {
     return atan2(_gy, _gx);
 }
 
-CMyImage getSobelDirection(const CMyImage& _dx, const CMyImage& _dy) {
+CMyImage getGradientDirections(const CMyImage& _dx, const CMyImage& _dy) {
 
     CMyImage result_image(_dx.getHeight(), _dx.getWidth());
 

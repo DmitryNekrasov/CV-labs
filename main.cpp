@@ -5,6 +5,7 @@
 #include "array.h"
 #include "core.h"
 #include "defs.h"
+#include "descriptors.h"
 #include "matrix.h"
 #include "myimage.h"
 #include "poi.h"
@@ -13,19 +14,23 @@
 
 int main() {
 
-    QImage qimage_in("/Users/ScanNorOne/Desktop/laferrari.jpg");
+    QImage qimage_in("/Users/ScanNorOne/Desktop/lena_std.tif");
     mycv::CMyImage image_in(qimage_in);
 
-    auto sobel_dx = mycv::getSobelDx(image_in);
-    auto sobel_dy = mycv::getSobelDy(image_in);
-    auto gradient_values = mycv::getSobelValue(sobel_dx, sobel_dy);
-    auto gradient_directions = mycv::getSobelDirection(sobel_dx, sobel_dy);
+    auto harris = mycv::poi::applyHarris(image_in, 3);
+    auto poi = mycv::poi::getPoi(harris, 1.0, 5);
+    auto filtered_poi = mycv::poi::filterPoint(poi, 100);
 
-    gradient_values.normalize();
-    gradient_directions.normalize();
+    std::cout << "Number of Harris poi: " << poi.size() << std::endl;
+    std::cout << "Number of filtered Harris poi: " << filtered_poi.size() << std::endl;
 
-    mycv::qimg::toQImagePtr(gradient_values)->save("/Users/ScanNorOne/Desktop/values.png");
-    mycv::qimg::toQImagePtr(gradient_directions)->save("/Users/ScanNorOne/Desktop/directions.png");
+    auto descriptors = mycv::desc::getDescriptors(image_in, filtered_poi, 4, 4, 8);
+
+    harris.normalize();
+
+    mycv::qimg::toQImagePtr(harris)->save("/Users/ScanNorOne/Desktop/harris.png");
+    mycv::qimg::drawPoints(image_in, poi)->save("/Users/ScanNorOne/Desktop/poi.png");
+    mycv::qimg::drawPoints(image_in, filtered_poi)->save("/Users/ScanNorOne/Desktop/filtered_poi.png");
 
     return 0;
 }

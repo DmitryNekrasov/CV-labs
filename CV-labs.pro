@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     simple.cpp \
     array.cpp \
     poi.cpp \
-    qimagegenerator.cpp
+    qimagegenerator.cpp \
+    descriptors.cpp
 
 HEADERS += \
     matrix.h \
@@ -26,4 +27,5 @@ HEADERS += \
     simple.h \
     array.h \
     poi.h \
-    qimagegenerator.h
+    qimagegenerator.h \
+    descriptors.h
