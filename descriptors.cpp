@@ -1,11 +1,19 @@
 #include "descriptors.h"
 
 #include "core.h"
+#include "numeric"
 #include "simple.h"
 
 namespace mycv {
 
 namespace desc {
+
+static double getVectorLength(const DescriptorT& _descriptor) {
+    return sqrt(std::accumulate(_descriptor.begin(), _descriptor.end(), 0.0,
+        [](const auto& _sum, double _value) {
+            return _sum + smpl::sqr(_value);
+        }));
+}
 
 DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                             int _descriptor_size, int _block_size, int _histogram_value_number)
@@ -55,6 +63,14 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                 descriptor[size_t(histogram_start_index + second_basket_index)] += second_percent * gradient_value;
             }
         }
+    }
+
+    for (auto& descriptor : descriptors) {
+        auto vector_length = getVectorLength(descriptor);
+        std::transform(descriptor.begin(), descriptor.end(), descriptor.begin(),
+            [vector_length](const auto& _value) {
+                return _value / vector_length;
+            });
     }
 
     return descriptors;
