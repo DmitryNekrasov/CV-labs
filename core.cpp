@@ -106,7 +106,8 @@ CMyImage getGradientValues(const CMyImage& _dx, const CMyImage& _dy) {
 }
 
 static inline double getGradientDirection(double _gx, double _gy) {
-    return atan2(_gy, _gx);
+    auto angle = atan2(_gy, _gx);
+    return angle >= 0 ? angle : angle + M_PI * 2;
 }
 
 CMyImage getGradientDirections(const CMyImage& _dx, const CMyImage& _dy) {
