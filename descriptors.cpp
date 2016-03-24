@@ -40,7 +40,7 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                 auto gradient_direction = gradient_directions.get(u, v);
 
                 auto first_basket_index = int(gradient_direction / z);
-                auto distance_to_basket_center = gradient_direction - first_basket_index * z + z / 2;
+                auto distance_to_basket_center = gradient_direction - (first_basket_index * z + z / 2);
                 auto second_basket_index = distance_to_basket_center > 0 ? first_basket_index + 1 : first_basket_index - 1;
 
                 first_basket_index %= _histogram_value_number;
