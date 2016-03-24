@@ -1,7 +1,8 @@
 #include "descriptors.h"
 
-#include "core.h"
 #include "numeric"
+
+#include "core.h"
 #include "simple.h"
 
 namespace mycv {
@@ -13,14 +14,6 @@ static double getVectorLength(const DescriptorT& _descriptor) {
         [](const auto& _sum, double _value) {
             return _sum + smpl::sqr(_value);
         }));
-}
-
-double getDistance(const DescriptorT& _first, const DescriptorT& _second) {
-    double sum = 0;
-    for (size_t i = 0, ei = _first.size(); i < ei; i++) {
-        sum += smpl::sqr(_first[i] - _second[i]);
-    }
-    return sqrt(sum);
 }
 
 DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
@@ -82,6 +75,36 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
     }
 
     return descriptors;
+}
+
+static double getDistance(const DescriptorT& _first, const DescriptorT& _second) {
+    double sum = 0;
+    for (size_t i = 0, ei = _first.size(); i < ei; i++) {
+        sum += smpl::sqr(_first[i] - _second[i]);
+    }
+    return sqrt(sum);
+}
+
+ConformityT getConformity(const DescriptorsT& _first, const DescriptorsT& _second) {
+
+    ConformityT conformity;
+
+    for (size_t i = 0, ei = _first.size(); i < ei; i++) {
+        size_t min_index = 0;
+        double min_distance = getDistance(_first[i], _second[min_index]);
+        for (size_t j = 1, ej = _second.size(); j < ej; j++) {
+            auto distance = getDistance(_first[i], _second[j]);
+            if (distance < min_distance) {
+                min_distance = distance;
+                min_index = j;
+            }
+        }
+        if (min_distance < 0.4) {
+            conformity.emplace_back(i, min_index);
+        }
+    }
+
+    return conformity;
 }
 
 } // desc
