@@ -15,6 +15,14 @@ static double getVectorLength(const DescriptorT& _descriptor) {
         }));
 }
 
+double getDistance(const DescriptorT& _first, const DescriptorT& _second) {
+    double sum = 0;
+    for (size_t i = 0, ei = _first.size(); i < ei; i++) {
+        sum += smpl::sqr(_first[i] - _second[i]);
+    }
+    return sqrt(sum);
+}
+
 DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                             int _descriptor_size, int _block_size, int _histogram_value_number)
 {
