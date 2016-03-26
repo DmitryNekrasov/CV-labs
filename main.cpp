@@ -23,7 +23,7 @@ int main() {
     int w_size = 3;
     double threshold = 5.0;
     int p_size = 5;
-    size_t target_quantity = 500;
+    size_t target_quantity = 1000;
 
     auto first_harris = mycv::poi::applyHarris(first_image_in, w_size);
     auto first_poi = mycv::poi::getPoi(first_harris, threshold, p_size);

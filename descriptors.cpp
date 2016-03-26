@@ -85,7 +85,7 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
     return sqrt(sum);
 }
 
-static size_t getIndexOfNearest(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
+static size_t getNearestIndex(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
 
     size_t min_index = 0;
     auto min_distance = getDistance(_descriptor, _descriptors[min_index]);
@@ -101,14 +101,47 @@ static size_t getIndexOfNearest(const DescriptorT& _descriptor, const Descriptor
     return min_index;
 }
 
+static std::pair<std::pair<size_t, size_t>, std::pair <double, double>>
+getTwoNearest(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
+
+    auto min_indices = std::make_pair(size_t(0), size_t(1));
+    auto min_distances = std::make_pair(getDistance(_descriptor, _descriptors[min_indices.first]),
+                                        getDistance(_descriptor, _descriptors[min_indices.second]));
+
+    if (min_indices.first > min_indices.second) {
+        std::swap(min_indices.first, min_indices.second);
+        std::swap(min_distances.first, min_distances.second);
+    }
+
+    for (size_t i = 2, ei = _descriptors.size(); i < ei; i++) {
+        auto distance = getDistance(_descriptor, _descriptors[i]);
+        if (distance < min_distances.first) {
+            min_indices.second = min_indices.first;
+            min_indices.first = i;
+            min_distances.second = min_distances.first;
+            min_distances.first = distance;
+        } else if (distance < min_distances.second) {
+            min_indices.second = i;
+            min_distances.second = distance;
+        }
+    }
+
+    return std::make_pair(min_indices, min_distances);
+}
+
 MatchesT getMatches(const DescriptorsT& _first, const DescriptorsT& _second) {
 
     MatchesT matches;
 
     for (size_t i = 0, ei = _first.size(); i < ei; i++) {
-        auto first_min_index = getIndexOfNearest(_first[i], _second);
-        auto second_min_index = getIndexOfNearest(_second[first_min_index], _first);
-        if (second_min_index == i) {
+        auto two_nearest = getTwoNearest(_first[i], _second);
+        auto two_nearest_indices = two_nearest.first;
+        auto two_nearest_distances = two_nearest.second;
+
+        auto first_min_index = two_nearest_indices.first;
+        auto second_min_index = getNearestIndex(_second[first_min_index], _first);
+
+        if (second_min_index == i && two_nearest_distances.first / two_nearest_distances.second < 0.8) {
             matches.emplace_back(i, first_min_index);
         }
     }
