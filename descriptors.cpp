@@ -85,22 +85,31 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
     return sqrt(sum);
 }
 
+static size_t getIndexOfNearest(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
+
+    size_t min_index = 0;
+    auto min_distance = getDistance(_descriptor, _descriptors[min_index]);
+
+    for (size_t i = 1, ei = _descriptors.size(); i < ei; i++) {
+        auto distance = getDistance(_descriptor, _descriptors[i]);
+        if (distance < min_distance) {
+            min_index = i;
+            min_distance = distance;
+        }
+    }
+
+    return min_index;
+}
+
 MatchesT getMatches(const DescriptorsT& _first, const DescriptorsT& _second) {
 
     MatchesT matches;
 
     for (size_t i = 0, ei = _first.size(); i < ei; i++) {
-        size_t min_index = 0;
-        double min_distance = getDistance(_first[i], _second[min_index]);
-        for (size_t j = 1, ej = _second.size(); j < ej; j++) {
-            auto distance = getDistance(_first[i], _second[j]);
-            if (distance < min_distance) {
-                min_distance = distance;
-                min_index = j;
-            }
-        }
-        if (min_distance < 0.5) {
-            matches.emplace_back(i, min_index);
+        auto first_min_index = getIndexOfNearest(_first[i], _second);
+        auto second_min_index = getIndexOfNearest(_second[first_min_index], _first);
+        if (second_min_index == i) {
+            matches.emplace_back(i, first_min_index);
         }
     }
 

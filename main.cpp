@@ -61,7 +61,7 @@ int main() {
     mycv::qimg::drawPoints(second_image_in, second_filtered_poi)->save("/Users/ScanNorOne/Desktop/second_filtered_poi.png");
 
     mycv::qimg::mergeImageAndDrawLines(first_image_in, first_filtered_poi, second_image_in, second_filtered_poi,
-                                       matches, 0)->save("/Users/ScanNorOne/Desktop/merged.png");
+                                       matches, 128)->save("/Users/ScanNorOne/Desktop/merged.png");
 
     return 0;
 }
