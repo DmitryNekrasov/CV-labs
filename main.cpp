@@ -23,7 +23,7 @@ int main() {
     int w_size = 3;
     double threshold = 5.0;
     int p_size = 5;
-    size_t target_quantity = 50;
+    size_t target_quantity = 500;
 
     auto first_harris = mycv::poi::applyHarris(first_image_in, w_size);
     auto first_poi = mycv::poi::getPoi(first_harris, threshold, p_size);
@@ -45,9 +45,9 @@ int main() {
     auto second_descriptors = mycv::desc::getDescriptors(second_image_in, second_filtered_poi,
                                                         descriptor_size, block_size, histogram_value_number);
 
-    auto conformity = mycv::desc::getConformity(first_descriptors, second_descriptors);
+    auto matches = mycv::desc::getMatches(first_descriptors, second_descriptors);
 
-    std::cout << conformity.size() << std::endl;
+    std::cout << matches.size() << std::endl;
 
     first_harris.normalize();
     second_harris.normalize();
@@ -61,7 +61,7 @@ int main() {
     mycv::qimg::drawPoints(second_image_in, second_filtered_poi)->save("/Users/ScanNorOne/Desktop/second_filtered_poi.png");
 
     mycv::qimg::mergeImageAndDrawLines(first_image_in, first_filtered_poi, second_image_in, second_filtered_poi,
-                                       conformity)->save("/Users/ScanNorOne/Desktop/merged.png");
+                                       matches, 0)->save("/Users/ScanNorOne/Desktop/merged.png");
 
     return 0;
 }

@@ -48,20 +48,20 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                 auto gradient_value = gradient_values.get(u, v) * gauss_kernel.get(i, j);
                 auto gradient_direction = gradient_directions.get(u, v);
 
-                auto first_basket_index = int(gradient_direction / z);
-                auto distance_to_basket_center = gradient_direction - (first_basket_index * z + z / 2);
-                auto second_basket_index = distance_to_basket_center > 0 ? first_basket_index + 1 : first_basket_index - 1;
+                auto first_bin_index = int(gradient_direction / z);
+                auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
+                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
 
-                first_basket_index %= _histogram_value_number;
-                second_basket_index = smpl::modulo(second_basket_index, _histogram_value_number);
+                first_bin_index %= _histogram_value_number;
+                second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
 
                 auto histogram_start_index = (i / _block_size * _descriptor_size + j / _block_size) * _histogram_value_number;
 
-                auto second_percent = fabs(distance_to_basket_center) / z;
+                auto second_percent = fabs(distance_to_bin_center) / z;
                 auto first_percent = 1 - second_percent;
 
-                descriptor[size_t(histogram_start_index + first_basket_index)] += first_percent * gradient_value;
-                descriptor[size_t(histogram_start_index + second_basket_index)] += second_percent * gradient_value;
+                descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
+                descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
             }
         }
     }
@@ -85,9 +85,9 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
     return sqrt(sum);
 }
 
-ConformityT getConformity(const DescriptorsT& _first, const DescriptorsT& _second) {
+MatchesT getMatches(const DescriptorsT& _first, const DescriptorsT& _second) {
 
-    ConformityT conformity;
+    MatchesT matches;
 
     for (size_t i = 0, ei = _first.size(); i < ei; i++) {
         size_t min_index = 0;
@@ -99,12 +99,12 @@ ConformityT getConformity(const DescriptorsT& _first, const DescriptorsT& _secon
                 min_index = j;
             }
         }
-        if (min_distance < 0.4) {
-            conformity.emplace_back(i, min_index);
+        if (min_distance < 0.5) {
+            matches.emplace_back(i, min_index);
         }
     }
 
-    return conformity;
+    return matches;
 }
 
 } // desc

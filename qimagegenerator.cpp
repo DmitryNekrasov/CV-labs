@@ -49,7 +49,7 @@ QImagePtrT drawPoints(const CMyImage& _image, const poi::PointsT& _points) {
 
 QImagePtrT mergeImageAndDrawLines(const CMyImage& _first_image, const poi::PointsT& _first_points,
                                   const CMyImage& _second_image, const poi::PointsT& _second_points,
-                                  const desc::ConformityT& _conformity, unsigned char _line_alpha /*  = 255 */)
+                                  const desc::MatchesT& _matches, unsigned char _line_alpha /*  = 255 */)
 {
     CMyImage merged_image(std::max(_first_image.getHeight(), _second_image.getHeight()),
                           _first_image.getWidth() + _second_image.getWidth());
@@ -72,11 +72,11 @@ QImagePtrT mergeImageAndDrawLines(const CMyImage& _first_image, const poi::Point
 
     QPainter painter(qimage.get());
 
-    for (const auto& c : _conformity) {
-        auto x1 = std::get<toUType(Poi::Y)>(_first_points[c.first]);
-        auto y1 = std::get<toUType(Poi::X)>(_first_points[c.first]);
-        auto x2 = std::get<toUType(Poi::Y)>(_second_points[c.second]);
-        auto y2 = std::get<toUType(Poi::X)>(_second_points[c.second]);
+    for (const auto& match : _matches) {
+        auto x1 = std::get<toUType(Poi::Y)>(_first_points[match.first]);
+        auto y1 = std::get<toUType(Poi::X)>(_first_points[match.first]);
+        auto x2 = std::get<toUType(Poi::Y)>(_second_points[match.second]);
+        auto y2 = std::get<toUType(Poi::X)>(_second_points[match.second]);
 
         int r = qrand() % 256, g = qrand() % 256, b = qrand() % 256;
 
