@@ -20,8 +20,8 @@ static double getVectorLength(const DescriptorT& _descriptor) {
         }));
 }
 
-DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
-                            int _descriptor_size, int _block_size, int _histogram_value_number)
+std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::PointsT& _points,
+                                                 int _descriptor_size, int _block_size, int _histogram_value_number)
 {
     auto sobel_dx = getSobelDx(_image);
     auto sobel_dy = getSobelDy(_image);
@@ -145,7 +145,7 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
             });
     }
 
-    return descriptors;
+    return std::make_tuple(descriptors, angles);
 }
 
 static double getDistance(const DescriptorT& _first, const DescriptorT& _second) {

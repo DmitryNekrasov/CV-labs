@@ -45,7 +45,7 @@ int main() {
     auto second_descriptors = mycv::desc::getDescriptors(second_image_in, second_filtered_poi,
                                                         descriptor_size, block_size, histogram_value_number);
 
-    auto matches = mycv::desc::getMatches(first_descriptors, second_descriptors);
+    auto matches = mycv::desc::getMatches(std::get<0>(first_descriptors), std::get<0>(second_descriptors));
 
     std::cout << matches.size() << std::endl;
 
@@ -60,8 +60,9 @@ int main() {
     mycv::qimg::drawPoints(second_image_in, second_poi)->save("/Users/ScanNorOne/Desktop/second_poi.png");
     mycv::qimg::drawPoints(second_image_in, second_filtered_poi)->save("/Users/ScanNorOne/Desktop/second_filtered_poi.png");
 
-    mycv::qimg::mergeImageAndDrawLines(first_image_in, first_filtered_poi, second_image_in, second_filtered_poi,
-                                       matches, 128)->save("/Users/ScanNorOne/Desktop/merged.png");
+    mycv::qimg::showDescriptors(first_image_in, second_image_in, first_filtered_poi, second_filtered_poi,
+                                std::get<1>(first_descriptors), std::get<1>(second_descriptors), descriptor_size * block_size,
+                                matches, 255, 50)->save("/Users/ScanNorOne/Desktop/merged.png");
 
     return 0;
 }

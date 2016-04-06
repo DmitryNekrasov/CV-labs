@@ -1,5 +1,7 @@
 #include "qimagegenerator.h"
 
+#include <cmath>
+
 #include <QPainter>
 
 #include "simple.h"
@@ -47,9 +49,37 @@ QImagePtrT drawPoints(const CMyImage& _image, const poi::PointsT& _points) {
     return qimage;
 }
 
-QImagePtrT mergeImageAndDrawLines(const CMyImage& _first_image, const poi::PointsT& _first_points,
-                                  const CMyImage& _second_image, const poi::PointsT& _second_points,
-                                  const desc::MatchesT& _matches, unsigned char _line_alpha /*  = 255 */)
+static void drawTiltedSquare(QPainter& _painter, int _x, int _y, int _size, double _angle) {
+
+    auto half = _size / 2;
+
+    auto x1 = int(-half * cos(_angle) - half * sin(_angle)) + _x;
+    auto y1 = int(-half * sin(_angle) + half * cos(_angle)) + _y;
+
+    auto x2 = int(half * cos(_angle) - half * sin(_angle)) + _x;
+    auto y2 = int(half * sin(_angle) + half * cos(_angle)) + _y;
+
+    auto x3 = int(half * cos(_angle) + half * sin(_angle)) + _x;
+    auto y3 = int(half * sin(_angle) - half * cos(_angle)) + _y;
+
+    auto x4 = int(-half * cos(_angle) + half * sin(_angle)) + _x;
+    auto y4 = int(-half * sin(_angle) - half * cos(_angle)) + _y;
+
+    auto x_arrow = int(half * cos(_angle)) + _x;
+    auto y_arrow = int(half * sin(_angle)) + _y;
+
+    _painter.drawLine(x1, y1, x2, y2);
+    _painter.drawLine(x2, y2, x3, y3);
+    _painter.drawLine(x3, y3, x4, y4);
+    _painter.drawLine(x4, y4, x1, y1);
+    _painter.drawLine(_x, _y, x_arrow, y_arrow);
+}
+
+QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second_image,
+                           const poi::PointsT& _first_points, const poi::PointsT& _second_points,
+                           const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles, int _grid_size,
+                           const desc::MatchesT& _matches, unsigned char _point_alpha /* = 255 */,
+                           unsigned char _line_alpha /* = 255 */, unsigned char _rect_alpha /* = 255 */)
 {
     CMyImage merged_image(std::max(_first_image.getHeight(), _second_image.getHeight()),
                           _first_image.getWidth() + _second_image.getWidth());
@@ -83,7 +113,11 @@ QImagePtrT mergeImageAndDrawLines(const CMyImage& _first_image, const poi::Point
         painter.setPen(QColor(r, g, b, _line_alpha));
         painter.drawLine(x1, y1, x2 + offset, y2);
 
-        painter.setPen(QColor(r, g, b));
+        painter.setPen(QColor(255, 0, 0, _rect_alpha));
+        drawTiltedSquare(painter, x1, y1, _grid_size, _first_angles[match.first]);
+        drawTiltedSquare(painter, x2 + offset, y2, _grid_size, _second_angles[match.second]);
+
+        painter.setPen(QColor(r, g, b, _point_alpha));
         drawAroundPoint(painter, x1, y1);
         drawAroundPoint(painter, x2 + offset, y2);
     }

@@ -14,9 +14,11 @@ using QImagePtrT = std::unique_ptr<QImage>;
 
 QImagePtrT toQImagePtr(const CMyImage& _image);
 QImagePtrT drawPoints(const CMyImage& _image, const poi::PointsT& _points);
-QImagePtrT mergeImageAndDrawLines(const CMyImage& _first_image, const poi::PointsT& _first_points,
-                                  const CMyImage& _second_image, const poi::PointsT& _second_points,
-                                  const desc::MatchesT& _matches, unsigned char _line_alpha = 255);
+QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second_image,
+                           const poi::PointsT& _first_points, const poi::PointsT& _second_points,
+                           const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles, int _grid_size,
+                           const desc::MatchesT& _matches, unsigned char _point_alpha = 255,
+                           unsigned char _line_alpha = 255, unsigned char _rect_alpha = 255);
 
 } // qimg
 
