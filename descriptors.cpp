@@ -1,9 +1,9 @@
 #include "descriptors.h"
 
 #include <array>
+#include <numeric>
 
-#include "numeric"
-
+#include "algo.h"
 #include "core.h"
 #include "simple.h"
 
@@ -65,19 +65,13 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
             }
         }
 
-        size_t first_max_index = 0;
-        size_t second_max_index = 1;
-        if (wide_histogram[first_max_index] < wide_histogram[second_max_index]) {
-            std::swap(first_max_index, second_max_index);
-        }
-        for (size_t i = 2; i < g_WideHistogramSize; i++) {
-            if (wide_histogram[i] > wide_histogram[first_max_index]) {
-                second_max_index = first_max_index;
-                first_max_index = i;
-            } else if (wide_histogram[i] > wide_histogram[second_max_index]) {
-                second_max_index = i;
-            }
-        }
+        auto two_max = algo::twoElement(wide_histogram.begin(), wide_histogram.end(),
+            [](const auto& _first, const auto& _second) {
+                return _first > _second;
+            });
+
+        auto first_max_index = size_t(two_max.first - wide_histogram.begin());
+        auto second_max_index = size_t(two_max.second - wide_histogram.begin());
 
         auto first_angle = first_max_index * wide_bin_size + wide_bin_size / 2;
         auto second_angle = second_max_index * wide_bin_size + wide_bin_size / 2;
@@ -162,63 +156,32 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
     return sqrt(sum);
 }
 
-static size_t getNearestIndex(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
-
-    size_t min_index = 0;
-    auto min_distance = getDistance(_descriptor, _descriptors[min_index]);
-
-    for (size_t i = 1, ei = _descriptors.size(); i < ei; i++) {
-        auto distance = getDistance(_descriptor, _descriptors[i]);
-        if (distance < min_distance) {
-            min_index = i;
-            min_distance = distance;
-        }
-    }
-
-    return min_index;
-}
-
-static std::pair<std::pair<size_t, size_t>, std::pair<double, double>>
-getTwoNearest(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
-
-    auto min_indices = std::make_pair(size_t(0), size_t(1));
-    auto min_distances = std::make_pair(getDistance(_descriptor, _descriptors[min_indices.first]),
-                                        getDistance(_descriptor, _descriptors[min_indices.second]));
-
-    if (min_indices.first > min_indices.second) {
-        std::swap(min_indices.first, min_indices.second);
-        std::swap(min_distances.first, min_distances.second);
-    }
-
-    for (size_t i = 2, ei = _descriptors.size(); i < ei; i++) {
-        auto distance = getDistance(_descriptor, _descriptors[i]);
-        if (distance < min_distances.first) {
-            min_indices.second = min_indices.first;
-            min_indices.first = i;
-            min_distances.second = min_distances.first;
-            min_distances.first = distance;
-        } else if (distance < min_distances.second) {
-            min_indices.second = i;
-            min_distances.second = distance;
-        }
-    }
-
-    return std::make_pair(min_indices, min_distances);
-}
-
 MatchesT getMatches(const DescriptorsT& _first, const DescriptorsT& _second) {
 
     MatchesT matches;
 
+    std::vector<double> dst_to_second, dst_to_first;
+    dst_to_second.reserve(_second.size());
+    dst_to_first.reserve(_first.size());
+
     for (size_t i = 0, ei = _first.size(); i < ei; i++) {
-        auto two_nearest = getTwoNearest(_first[i], _second);
-        auto two_nearest_indices = two_nearest.first;
-        auto two_nearest_distances = two_nearest.second;
+        dst_to_second.clear();
+        for (size_t j = 0, ej = _second.size(); j < ej; j++) {
+            dst_to_second.push_back(getDistance(_first[i], _second[j]));
+        }
+        auto two_nearest = algo::twoElement(dst_to_second.begin(), dst_to_second.end(),
+            [](const auto& _first, const auto& _second) {
+                return _first < _second;
+            });
+        auto first_min_index = size_t(two_nearest.first - dst_to_second.begin());
 
-        auto first_min_index = two_nearest_indices.first;
-        auto second_min_index = getNearestIndex(_second[first_min_index], _first);
+        dst_to_first.clear();
+        for (size_t j = 0, ej = _first.size(); j < ej; j++) {
+            dst_to_first.push_back(getDistance(_second[first_min_index], _first[j]));
+        }
+        auto second_min_index = size_t(std::min_element(dst_to_first.begin(), dst_to_first.end()) - dst_to_first.begin());
 
-        if (second_min_index == i && two_nearest_distances.first / two_nearest_distances.second < 0.8) {
+        if (second_min_index == i && *two_nearest.first / *two_nearest.second < 0.8) {
             matches.emplace_back(i, first_min_index);
         }
     }

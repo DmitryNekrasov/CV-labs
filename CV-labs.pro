@@ -28,4 +28,5 @@ HEADERS += \
     array.h \
     poi.h \
     qimagegenerator.h \
-    descriptors.h
+    descriptors.h \
+    algo.h
