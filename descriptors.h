@@ -12,6 +12,7 @@ namespace desc {
 using DescriptorT = std::vector<double>;
 using DescriptorsT = std::vector<DescriptorT>;
 using MatchesT = std::vector<std::pair<size_t, size_t>>;
+using AnglesT = std::vector<double>;
 
 DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                             int _descriptor_size, int _block_size, int _histogram_value_number);

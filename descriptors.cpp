@@ -28,23 +28,17 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
     auto gradient_values = getGradientValues(sobel_dx, sobel_dy);
     auto gradient_directions = getGradientDirections(sobel_dx, sobel_dy);
 
-    int histogram_number = smpl::sqr(_descriptor_size);
-    int descriptor_value_number = histogram_number * _histogram_value_number;
     int grid_size = _descriptor_size * _block_size;
     int grid_half = grid_size / 2;
 
     auto wide_gauss_kernel = getGaussKernel(smpl::getSigmaForKernelSize(grid_half * 2 + 1));
-
-    DescriptorsT descriptors;
-
     const auto wide_bin_size = M_PI * 2 / g_WideHistogramSize;
-    const auto z = M_PI * 2 / _histogram_value_number;
 
+    AnglesT angles;
+    AnglesT second_angles;
     poi::PointsT new_poi;
-    std::vector<double> second_angles;
 
     for (const auto& point : _points) {
-
         std::array<double, g_WideHistogramSize> wide_histogram;
         std::fill(wide_histogram.begin(), wide_histogram.end(), 0);
 
@@ -84,69 +78,44 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                 second_max_index = i;
             }
         }
+
         auto first_angle = first_max_index * wide_bin_size + wide_bin_size / 2;
         auto second_angle = second_max_index * wide_bin_size + wide_bin_size / 2;
+
+        angles.push_back(first_angle);
 
         if (second_angle >= first_angle * 0.8) {
             new_poi.emplace_back(point);
             second_angles.push_back(second_angle);
         }
-
-        descriptors.emplace_back(descriptor_value_number, 0);
-        auto& descriptor = descriptors.back();
-
-        int q_gap = int(grid_half * (sqrt(2.0) - 1.0));
-        for (int i = -q_gap, ei = grid_size + q_gap; i < ei; i++) {
-            for (int j = -q_gap, ej = grid_size + q_gap; j < ej; j++) {
-                auto u = std::get<toUType(Poi::X)>(point) - grid_half + i;
-                auto v = std::get<toUType(Poi::Y)>(point) - grid_half + j;
-
-                auto gradient_value = gradient_values.get(u, v);
-                auto gradient_direction = gradient_directions.get(u, v) - first_angle;
-
-                auto first_bin_index = int(gradient_direction / z);
-                auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
-                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
-
-                first_bin_index %= _histogram_value_number;
-                second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
-
-                auto new_i = int((i - grid_half) * cos(first_angle) - (j - grid_half) * sin(first_angle));
-                auto new_j = int((i - grid_half) * sin(first_angle) + (j - grid_half) * cos(first_angle));
-
-                new_i += grid_half;
-                new_j += grid_half;
-
-                if (new_i >= 0 && new_i < grid_size && new_j >= 0 && new_j < grid_size) {
-                    auto histogram_start_index = (new_i / _block_size * _descriptor_size + new_j / _block_size) * _histogram_value_number;
-
-                    auto second_percent = fabs(distance_to_bin_center) / z;
-                    auto first_percent = 1 - second_percent;
-
-                    descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
-                    descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
-                }
-            }
-        }
-
     }
 
-    size_t k = 0;
-    for (const auto& point : new_poi) {
+    _points.insert(_points.end(), new_poi.begin(), new_poi.end());
+    angles.insert(angles.end(), second_angles.begin(), second_angles.end());
 
-        _points.push_back(point);
+    int histogram_number = smpl::sqr(_descriptor_size);
+    int descriptor_value_number = histogram_number * _histogram_value_number;
 
+    DescriptorsT descriptors;
+
+    const auto z = M_PI * 2 / _histogram_value_number;
+
+    size_t angle_index = 0;
+    for (const auto& point : _points) {
         descriptors.emplace_back(descriptor_value_number, 0);
         auto& descriptor = descriptors.back();
 
-        int q_gap = int(grid_half * (sqrt(2.0) - 1.0));
-        for (int i = -q_gap, ei = grid_size + q_gap; i < ei; i++) {
-            for (int j = -q_gap, ej = grid_size + q_gap; j < ej; j++) {
+        const auto angle = angles[angle_index++];
+
+        auto gap = int(grid_half * (sqrt(2.0) - 1.0));
+
+        for (int i = -gap, ei = grid_size + gap; i < ei; i++) {
+            for (int j = -gap, ej = grid_size + gap; j < ej; j++) {
                 auto u = std::get<toUType(Poi::X)>(point) - grid_half + i;
                 auto v = std::get<toUType(Poi::Y)>(point) - grid_half + j;
 
                 auto gradient_value = gradient_values.get(u, v);
-                auto gradient_direction = gradient_directions.get(u, v) - second_angles[k];
+                auto gradient_direction = gradient_directions.get(u, v) - angle;
 
                 auto first_bin_index = int(gradient_direction / z);
                 auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
@@ -155,8 +124,8 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                 first_bin_index %= _histogram_value_number;
                 second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
 
-                auto new_i = int((i - grid_half) * cos(second_angles[k]) - (j - grid_half) * sin(second_angles[k]));
-                auto new_j = int((i - grid_half) * sin(second_angles[k]) + (j - grid_half) * cos(second_angles[k]));
+                auto new_i = int((i - grid_half) * cos(angle) - (j - grid_half) * sin(angle));
+                auto new_j = int((i - grid_half) * sin(angle) + (j - grid_half) * cos(angle));
 
                 new_i += grid_half;
                 new_j += grid_half;
@@ -172,8 +141,6 @@ DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                 }
             }
         }
-
-        k++;
     }
 
     for (auto& descriptor : descriptors) {
