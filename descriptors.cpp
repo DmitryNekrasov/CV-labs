@@ -1,5 +1,7 @@
 #include "descriptors.h"
 
+#include <array>
+
 #include "numeric"
 
 #include "core.h"
@@ -9,6 +11,8 @@ namespace mycv {
 
 namespace desc {
 
+static constexpr int g_WideHistogramSize = 36;
+
 static double getVectorLength(const DescriptorT& _descriptor) {
     return sqrt(std::accumulate(_descriptor.begin(), _descriptor.end(), 0.0,
         [](const auto& _sum, double _value) {
@@ -16,7 +20,7 @@ static double getVectorLength(const DescriptorT& _descriptor) {
         }));
 }
 
-DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
+DescriptorsT getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                             int _descriptor_size, int _block_size, int _histogram_value_number)
 {
     auto sobel_dx = getSobelDx(_image);
@@ -29,24 +33,76 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
     int grid_size = _descriptor_size * _block_size;
     int grid_half = grid_size / 2;
 
-    auto gauss_kernel = getGaussKernel(smpl::getSigmaForKernelSize(grid_half * 2 + 1));
+    auto wide_gauss_kernel = getGaussKernel(smpl::getSigmaForKernelSize(grid_half * 2 + 1));
 
     DescriptorsT descriptors;
 
+    const auto wide_bin_size = M_PI * 2 / g_WideHistogramSize;
     const auto z = M_PI * 2 / _histogram_value_number;
+
+    poi::PointsT new_poi;
+    std::vector<double> second_angles;
 
     for (const auto& point : _points) {
 
-        descriptors.emplace_back(descriptor_value_number, 0);
-        auto& descriptor = descriptors.back();
+        std::array<double, g_WideHistogramSize> wide_histogram;
+        std::fill(wide_histogram.begin(), wide_histogram.end(), 0);
 
         for (int i = 0; i < grid_size; i++) {
             for (int j = 0; j < grid_size; j++) {
                 auto u = std::get<toUType(Poi::X)>(point) - grid_half + i;
                 auto v = std::get<toUType(Poi::Y)>(point) - grid_half + j;
 
-                auto gradient_value = gradient_values.get(u, v) * gauss_kernel.get(i, j);
+                auto gradient_value = gradient_values.get(u, v) * wide_gauss_kernel.get(i, j);
                 auto gradient_direction = gradient_directions.get(u, v);
+
+                auto first_bin_index = int(gradient_direction / wide_bin_size);
+                auto distance_to_bin_center = gradient_direction - (first_bin_index * wide_bin_size + wide_bin_size / 2);
+                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
+
+                first_bin_index %= g_WideHistogramSize;
+                second_bin_index = smpl::modulo(second_bin_index, g_WideHistogramSize);
+
+                auto second_percent = fabs(distance_to_bin_center) / wide_bin_size;
+                auto first_percent = 1 - second_percent;
+
+                wide_histogram[size_t(first_bin_index)] += first_percent * gradient_value;
+                wide_histogram[size_t(second_bin_index)] += second_percent * gradient_value;
+            }
+        }
+
+        size_t first_max_index = 0;
+        size_t second_max_index = 1;
+        if (wide_histogram[first_max_index] < wide_histogram[second_max_index]) {
+            std::swap(first_max_index, second_max_index);
+        }
+        for (size_t i = 2; i < g_WideHistogramSize; i++) {
+            if (wide_histogram[i] > wide_histogram[first_max_index]) {
+                second_max_index = first_max_index;
+                first_max_index = i;
+            } else if (wide_histogram[i] > wide_histogram[second_max_index]) {
+                second_max_index = i;
+            }
+        }
+        auto first_angle = first_max_index * wide_bin_size + wide_bin_size / 2;
+        auto second_angle = second_max_index * wide_bin_size + wide_bin_size / 2;
+
+        if (second_angle >= first_angle * 0.8) {
+            new_poi.emplace_back(point);
+            second_angles.push_back(second_angle);
+        }
+
+        descriptors.emplace_back(descriptor_value_number, 0);
+        auto& descriptor = descriptors.back();
+
+        int q_gap = int(grid_half * (sqrt(2.0) - 1.0));
+        for (int i = -q_gap, ei = grid_size + q_gap; i < ei; i++) {
+            for (int j = -q_gap, ej = grid_size + q_gap; j < ej; j++) {
+                auto u = std::get<toUType(Poi::X)>(point) - grid_half + i;
+                auto v = std::get<toUType(Poi::Y)>(point) - grid_half + j;
+
+                auto gradient_value = gradient_values.get(u, v);
+                auto gradient_direction = gradient_directions.get(u, v) - first_angle;
 
                 auto first_bin_index = int(gradient_direction / z);
                 auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
@@ -55,15 +111,69 @@ DescriptorsT getDescriptors(const CMyImage& _image, const poi::PointsT& _points,
                 first_bin_index %= _histogram_value_number;
                 second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
 
-                auto histogram_start_index = (i / _block_size * _descriptor_size + j / _block_size) * _histogram_value_number;
+                auto new_i = int((i - grid_half) * cos(first_angle) - (j - grid_half) * sin(first_angle));
+                auto new_j = int((i - grid_half) * sin(first_angle) + (j - grid_half) * cos(first_angle));
 
-                auto second_percent = fabs(distance_to_bin_center) / z;
-                auto first_percent = 1 - second_percent;
+                new_i += grid_half;
+                new_j += grid_half;
 
-                descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
-                descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
+                if (new_i >= 0 && new_i < grid_size && new_j >= 0 && new_j < grid_size) {
+                    auto histogram_start_index = (new_i / _block_size * _descriptor_size + new_j / _block_size) * _histogram_value_number;
+
+                    auto second_percent = fabs(distance_to_bin_center) / z;
+                    auto first_percent = 1 - second_percent;
+
+                    descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
+                    descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
+                }
             }
         }
+
+    }
+
+    size_t k = 0;
+    for (const auto& point : new_poi) {
+
+        _points.push_back(point);
+
+        descriptors.emplace_back(descriptor_value_number, 0);
+        auto& descriptor = descriptors.back();
+
+        int q_gap = int(grid_half * (sqrt(2.0) - 1.0));
+        for (int i = -q_gap, ei = grid_size + q_gap; i < ei; i++) {
+            for (int j = -q_gap, ej = grid_size + q_gap; j < ej; j++) {
+                auto u = std::get<toUType(Poi::X)>(point) - grid_half + i;
+                auto v = std::get<toUType(Poi::Y)>(point) - grid_half + j;
+
+                auto gradient_value = gradient_values.get(u, v);
+                auto gradient_direction = gradient_directions.get(u, v) - second_angles[k];
+
+                auto first_bin_index = int(gradient_direction / z);
+                auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
+                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
+
+                first_bin_index %= _histogram_value_number;
+                second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
+
+                auto new_i = int((i - grid_half) * cos(second_angles[k]) - (j - grid_half) * sin(second_angles[k]));
+                auto new_j = int((i - grid_half) * sin(second_angles[k]) + (j - grid_half) * cos(second_angles[k]));
+
+                new_i += grid_half;
+                new_j += grid_half;
+
+                if (new_i >= 0 && new_i < grid_size && new_j >= 0 && new_j < grid_size) {
+                    auto histogram_start_index = (new_i / _block_size * _descriptor_size + new_j / _block_size) * _histogram_value_number;
+
+                    auto second_percent = fabs(distance_to_bin_center) / z;
+                    auto first_percent = 1 - second_percent;
+
+                    descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
+                    descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
+                }
+            }
+        }
+
+        k++;
     }
 
     for (auto& descriptor : descriptors) {
@@ -101,7 +211,7 @@ static size_t getNearestIndex(const DescriptorT& _descriptor, const DescriptorsT
     return min_index;
 }
 
-static std::pair<std::pair<size_t, size_t>, std::pair <double, double>>
+static std::pair<std::pair<size_t, size_t>, std::pair<double, double>>
 getTwoNearest(const DescriptorT& _descriptor, const DescriptorsT& _descriptors) {
 
     auto min_indices = std::make_pair(size_t(0), size_t(1));

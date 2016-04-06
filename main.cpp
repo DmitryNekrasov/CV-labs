@@ -17,7 +17,7 @@ int main() {
 
     QImage first_qimage_in("/Users/ScanNorOne/Desktop/msu1.png");
     mycv::CMyImage first_image_in(first_qimage_in);
-    QImage second_qimage_in("/Users/ScanNorOne/Desktop/msu2.png");
+    QImage second_qimage_in("/Users/ScanNorOne/Desktop/msu2_jr30.jpg");
     mycv::CMyImage second_image_in(second_qimage_in);
 
     int w_size = 3;
