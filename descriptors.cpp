@@ -78,7 +78,7 @@ std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::Po
 
         angles.push_back(first_angle);
 
-        if (second_angle >= first_angle * 0.8) {
+        if (*two_max.second >= *two_max.first * 0.8) {
             new_poi.emplace_back(point);
             second_angles.push_back(second_angle);
         }
