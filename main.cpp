@@ -15,9 +15,9 @@
 
 int main() {
 
-    QImage first_qimage_in("/Users/ScanNorOne/Desktop/msu1.png");
+    QImage first_qimage_in("/Users/ScanNorOne/Desktop/q1.png");
     mycv::CMyImage first_image_in(first_qimage_in);
-    QImage second_qimage_in("/Users/ScanNorOne/Desktop/msu2_jr30.jpg");
+    QImage second_qimage_in("/Users/ScanNorOne/Desktop/q2.png");
     mycv::CMyImage second_image_in(second_qimage_in);
 
     int w_size = 3;
@@ -62,7 +62,7 @@ int main() {
 
     mycv::qimg::showDescriptors(first_image_in, second_image_in, first_filtered_poi, second_filtered_poi,
                                 std::get<1>(first_descriptors), std::get<1>(second_descriptors), descriptor_size * block_size,
-                                matches, 255, 50)->save("/Users/ScanNorOne/Desktop/merged.png");
+                                matches, 255, 128)->save("/Users/ScanNorOne/Desktop/merged.png");
 
     return 0;
 }

@@ -113,7 +113,7 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
         painter.setPen(QColor(r, g, b, _line_alpha));
         painter.drawLine(x1, y1, x2 + offset, y2);
 
-        painter.setPen(QColor(255, 0, 0, _rect_alpha));
+        painter.setPen(QColor(r, g, b, _rect_alpha));
         drawTiltedSquare(painter, x1, y1, _grid_size, _first_angles[match.first]);
         drawTiltedSquare(painter, x2 + offset, y2, _grid_size, _second_angles[match.second]);
 

@@ -20,6 +20,12 @@ static double getVectorLength(const DescriptorT& _descriptor) {
         }));
 }
 
+static double specifyAngle(double _x0, double _y0, double _x1, double _y1, double _x2, double _y2) {
+    auto a = (_y2 - _y0) / ((_x2 - _x0) * (_x2 - _x1)) - (_y1 - _y0) / ((_x1 - _x0) * (_x2 - _x1));
+    auto b = (_y1 - _y0) / (_x1 - _x0) - a * (_x1 + _x0);
+    return -b / (2 * a);
+}
+
 std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::PointsT& _points,
                                                  int _descriptor_size, int _block_size, int _histogram_value_number)
 {
@@ -34,12 +40,23 @@ std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::Po
     auto wide_gauss_kernel = getGaussKernel(smpl::getSigmaForKernelSize(grid_half * 2 + 1));
     const auto wide_bin_size = M_PI * 2 / g_WideHistogramSize;
 
+    std::array<double, g_WideHistogramSize> wide_histogram;
+
+    auto get_final_angle = [&](int _max_index) {
+        auto angle_center = _max_index * wide_bin_size + wide_bin_size / 2;
+        auto angle_left = angle_center - wide_bin_size;
+        auto angle_right = angle_center + wide_bin_size;
+        auto y_center = wide_histogram[size_t(_max_index)];
+        auto y_left = wide_histogram[size_t(smpl::modulo(_max_index - 1, g_WideHistogramSize))];
+        auto y_right = wide_histogram[size_t(smpl::modulo(_max_index + 1, g_WideHistogramSize))];
+        return specifyAngle(angle_center, y_center, angle_left, y_left, angle_right, y_right);
+    };
+
     AnglesT angles;
     AnglesT second_angles;
     poi::PointsT new_poi;
 
     for (const auto& point : _points) {
-        std::array<double, g_WideHistogramSize> wide_histogram;
         std::fill(wide_histogram.begin(), wide_histogram.end(), 0);
 
         for (int i = 0; i < grid_size; i++) {
@@ -70,11 +87,11 @@ std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::Po
                 return _first > _second;
             });
 
-        auto first_max_index = size_t(two_max.first - wide_histogram.begin());
-        auto second_max_index = size_t(two_max.second - wide_histogram.begin());
+        auto first_max_index = int(two_max.first - wide_histogram.begin());
+        auto second_max_index = int(two_max.second - wide_histogram.begin());
 
-        auto first_angle = first_max_index * wide_bin_size + wide_bin_size / 2;
-        auto second_angle = second_max_index * wide_bin_size + wide_bin_size / 2;
+        auto first_angle = get_final_angle(first_max_index);
+        auto second_angle = get_final_angle(second_max_index);
 
         angles.push_back(first_angle);
 
