@@ -16,12 +16,6 @@ enum class BorderEffect {
     Mirror
 };
 
-enum class PyramidLayerEnum {
-    CurrentSigma,
-    EffectiveSigma,
-    Image
-};
-
 enum class Poi {
     X,
     Y,
