@@ -22,7 +22,9 @@ public:
     BorderEffect getBorderEffect() const;
     void setBorderEffect(BorderEffect _border_effect);
 
-    void normalize();
+    CMyImage getNormalize() const;
+
+    friend CMyImage operator-(const CMyImage& _left, const CMyImage& _right);
 
 private:
     std::pair<int, int> getClampIndices(int _row, int _col) const;

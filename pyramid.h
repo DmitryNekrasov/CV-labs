@@ -28,4 +28,6 @@ PyramidT getGaussPyramid(const CMyImage& _image, size_t _n, const size_t _s, con
 double getL(const PyramidT& _pyramid, int _y, int _x, double _sigma);
 void savePyramid(const PyramidT& _pyramid, const std::string& _path);
 
+PyramidT getDog(const PyramidT& _pyramid);
+
 } // mycv

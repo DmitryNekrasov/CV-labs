@@ -69,14 +69,16 @@ void CMyImage::setBorderEffect(BorderEffect _border_effect) {
     m_BorderEffect = _border_effect;
 }
 
-void CMyImage::normalize() {
+CMyImage CMyImage::getNormalize() const {
     auto minmax = std::minmax_element(begin(), end());
     auto min_intensity = *minmax.first;
     auto max_intensity = *minmax.second;
-    std::transform(begin(), end(), begin(),
+    CMyImage result(getHeight(), getWidth());
+    std::transform(begin(), end(), result.begin(),
         [&](const auto& intensity) {
             return (intensity - min_intensity) / double(max_intensity - min_intensity);
         });
+    return result;
 }
 
 std::pair<int, int> CMyImage::getClampIndices(int _row, int _col) const {
@@ -170,6 +172,17 @@ CArray getBArray(double _x, double _y) {
     b[15] = _x * _y * (_x - 1) * (_x + 1) * (_y - 1) * (_y + 1) / 36.0;
 
     return b;
+}
+
+CMyImage operator-(const CMyImage& _left, const CMyImage& _right) {
+    assert(_left.getHeight() == _right.getHeight() && _left.getWidth() == _right.getWidth());
+    CMyImage result(_left.getHeight(), _left.getWidth());
+    for (int i = 0, ei = result.getHeight(); i < ei; i++) {
+        for (int j = 0, ej = result.getWidth(); j < ej; j++) {
+            result.set(i, j, _left.get(i, j) - _right.get(i, j));
+        }
+    }
+    return result;
 }
 
 } // mycv

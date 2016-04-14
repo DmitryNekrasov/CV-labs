@@ -92,9 +92,25 @@ void savePyramid(const PyramidT& _pyramid, const std::string& _path) {
                     std::to_string(octave.level) + "_" +
                     std::to_string(layer.current_sigma) + "_" +
                     std::to_string(layer.effective_sigma) + ".png";
-            qimg::toQImagePtr(layer.image)->save(name.c_str());
+            qimg::toQImagePtr(layer.image.getNormalize())->save(name.c_str());
         }
     }
+}
+
+PyramidT getDog(const PyramidT& _pyramid) {
+    PyramidT dog(_pyramid.size());
+    size_t octave_index = 0;
+    for (const auto& octave : _pyramid) {
+        auto& dog_octave = dog[octave_index++];
+        dog_octave.level = octave.level;
+        for (size_t i = 0; i < octave.layers.size() - 1; i++) {
+            const auto& first_layer = octave.layers[i];
+            const auto& second_layer = octave.layers[i + 1];
+            dog_octave.layers.emplace_back(first_layer.current_sigma, first_layer.effective_sigma,
+                                                  second_layer.image - first_layer.image);
+        }
+    }
+    return  dog;
 }
 
 } // mycv
