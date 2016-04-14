@@ -49,8 +49,12 @@ std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::Po
         auto y_center = wide_histogram[size_t(_max_index)];
         auto y_left = wide_histogram[size_t(smpl::modulo(_max_index - 1, g_WideHistogramSize))];
         auto y_right = wide_histogram[size_t(smpl::modulo(_max_index + 1, g_WideHistogramSize))];
-        return specifyAngle(angle_center, y_center, angle_left, y_left, angle_right, y_right);
+        if (y_center >= y_left && y_center >= y_right) {
+            return specifyAngle(angle_center, y_center, angle_left, y_left, angle_right, y_right);
+        }
+        return angle_center;
     };
+
 
     AnglesT angles;
     AnglesT second_angles;
