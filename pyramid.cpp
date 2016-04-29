@@ -83,7 +83,7 @@ double getL(const PyramidT& _pyramid, int _y, int _x, double _sigma) {
     return target_layer->image.get(row, col);
 }
 
-void savePyramid(const PyramidT& _pyramid, const std::string& _path) {
+void savePyramid(const PyramidT& _pyramid, const std::string& _path, bool _normalize /* = false */) {
     int num = 0;
     for (const auto& octave : _pyramid) {
         for (const auto& layer : octave.layers) {
@@ -92,7 +92,11 @@ void savePyramid(const PyramidT& _pyramid, const std::string& _path) {
                     std::to_string(octave.level) + "_" +
                     std::to_string(layer.current_sigma) + "_" +
                     std::to_string(layer.effective_sigma) + ".png";
-            qimg::toQImagePtr(layer.image.getNormalize())->save(name.c_str());
+            if (_normalize) {
+                qimg::toQImagePtr(layer.image.getNormalize())->save(name.c_str());
+            } else {
+                qimg::toQImagePtr(layer.image)->save(name.c_str());
+            }
         }
     }
 }

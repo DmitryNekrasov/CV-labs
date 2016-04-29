@@ -26,7 +26,7 @@ using PyramidT = std::vector<Octave>;
 PyramidT getGaussPyramid(const CMyImage& _image, size_t _n, const size_t _s, const double _sigma_a,
                          const double _sigma_0, bool _from_octave_minus_one = false);
 double getL(const PyramidT& _pyramid, int _y, int _x, double _sigma);
-void savePyramid(const PyramidT& _pyramid, const std::string& _path);
+void savePyramid(const PyramidT& _pyramid, const std::string& _path, bool _normalize = false);
 
 PyramidT getDog(const PyramidT& _pyramid);
 

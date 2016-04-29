@@ -125,6 +125,20 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
     return qimage;
 }
 
+QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs) {
+    auto qimage = toQImagePtr(_image);
+    QPainter painter(qimage.get());
+    painter.setPen(Qt::red);
+    for (const auto& blob : _blobs) {
+        auto x = blob.y;
+        auto y = blob.x;
+        auto radius = int(blob.sigma * sqrt(2.0));
+        painter.drawEllipse(x - radius, y - radius, radius * 2, radius * 2);
+
+    }
+    return qimage;
+}
+
 } // qimg
 
 } // mycv

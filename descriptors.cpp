@@ -5,6 +5,8 @@
 
 #include "algo.h"
 #include "core.h"
+#include "pyramid.h"
+#include "qimagegenerator.h"
 #include "simple.h"
 
 namespace mycv {
@@ -175,6 +177,65 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
         sum += smpl::sqr(_first[i] - _second[i]);
     }
     return sqrt(sum);
+}
+
+static bool isExtremum(const Octave& _octave, size_t _k, int _i, int _j) {
+    auto center = _octave.layers[_k].image.get(_i, _j);
+    if (fabs(center) < 0.003) {
+        return false;
+    }
+
+    static constexpr size_t extremum_array_size = 26;
+    std::array<double, extremum_array_size> intensities;
+    size_t index = 0;
+
+    for (size_t k = _k - 1; k <= _k + 1; k++) {
+        for (int i = _i - 1; i <= _i + 1; i++) {
+            for (int j = _j - 1; j <= _j + 1; j++) {
+                if (k != _k || i != _i || j != _j) {
+                    intensities[index++] = _octave.layers[k].image.get(i, j);
+                }
+            }
+        }
+    }
+
+    auto minmax = std::minmax_element(intensities.begin(), intensities.end());
+
+    return center < *minmax.first || center > *minmax.second;
+}
+
+static const int g_MinSize = 16;
+
+BlobsT getBlobs(const CMyImage& _image) {
+
+    size_t s = 8;
+    double sigma_a = 0.5;
+    double sigma_0 = 1.6;
+    auto n = size_t(std::min(std::log2(double(_image.getHeight()) / g_MinSize),
+                      std::log2(double(_image.getWidth()) / g_MinSize))) + 1;
+
+    auto gauss_pyramid = getGaussPyramid(_image, n, s, sigma_a, sigma_0);
+    auto dog = getDog(gauss_pyramid);
+    savePyramid(dog, "/Users/ScanNorOne/Desktop/", true);
+
+    BlobsT blobs;
+
+    int scale = 1;
+    for (const auto& octave : dog) {
+        for (size_t k = 1, ek = octave.layers.size() - 1; k < ek; k++) {
+            const auto& layer = octave.layers[k];
+            for (int i = 0, ei = layer.image.getHeight(); i < ei; i++) {
+                for (int j = 0, ej = layer.image.getWidth(); j < ej; j++) {
+                    if (isExtremum(octave, k, i, j)) {
+                        blobs.emplace_back(i * scale, j * scale, layer.effective_sigma);
+                    }
+                }
+            }
+        }
+        scale *= 2;
+    }
+
+    return blobs;
 }
 
 MatchesT getMatches(const DescriptorsT& _first, const DescriptorsT& _second) {

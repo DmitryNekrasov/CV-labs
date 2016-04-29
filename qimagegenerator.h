@@ -19,6 +19,7 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
                            const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles, int _grid_size,
                            const desc::MatchesT& _matches, unsigned char _point_alpha = 255,
                            unsigned char _line_alpha = 255, unsigned char _rect_alpha = 255);
+QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs);
 
 } // qimg
 
