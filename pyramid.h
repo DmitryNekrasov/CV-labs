@@ -24,7 +24,7 @@ struct Octave {
 using PyramidT = std::vector<Octave>;
 
 PyramidT getGaussPyramid(const CMyImage& _image, size_t _n, const size_t _s, const double _sigma_a,
-                         const double _sigma_0, bool _from_octave_minus_one = false);
+                         const double _sigma_0, bool _from_octave_minus_one = false, size_t _overlap_size = 3);
 double getL(const PyramidT& _pyramid, int _y, int _x, double _sigma);
 void savePyramid(const PyramidT& _pyramid, const std::string& _path, bool _normalize = false);
 

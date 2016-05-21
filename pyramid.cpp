@@ -7,13 +7,13 @@
 namespace mycv {
 
 PyramidT getGaussPyramid(const CMyImage& _image, size_t _n, const size_t _s, const double _sigma_a,
-                         const double _sigma_0, bool _from_octave_minus_one /* = false */)
+                         const double _sigma_0, bool _from_octave_minus_one /* = false */, size_t _overlap_size /* = 3 */)
 {
     auto k = pow(2.0, 1.0 / _s);
     std::vector<SeparableFilterT> filters;
 
     auto old_sigma = _sigma_0;
-    for (size_t i = 0; i < _s; i++) {
+    for (size_t i = 0; i < _s + _overlap_size; i++) {
         auto new_sigma = old_sigma * k;
         auto sigma = smpl::getSigmaB(new_sigma, old_sigma);
         filters.push_back(getGaussSeparable(sigma));
@@ -38,15 +38,15 @@ PyramidT getGaussPyramid(const CMyImage& _image, size_t _n, const size_t _s, con
     for (auto octave_it = gauss_pyramid.begin(); octave_it != gauss_pyramid.end(); ++octave_it) {
         octave_it->level = int(octave_it - gauss_pyramid.begin());
 
-        for (size_t i = 0; i < _s; i++) {
+        for (size_t i = 0; i < _s + _overlap_size; i++) {
             const auto& layer = octave_it->layers.back();
             octave_it->layers.emplace_back(layer.current_sigma * k, layer.effective_sigma * k,
                                            applySeparableFilter(layer.image, filters[i]));
         }
 
         if (octave_it->level != int(_n - 1)) {
-            const auto& layer = octave_it->layers.back();
-            (octave_it + 1)->layers.emplace_back(_sigma_0, layer.effective_sigma, getDownscale(layer.image));
+            auto layer_it = octave_it->layers.end() - 1 - long(_overlap_size);
+            (octave_it + 1)->layers.emplace_back(_sigma_0, layer_it->effective_sigma, getDownscale(layer_it->image));
         }
     }
 
