@@ -29,8 +29,8 @@ int main() {
     std::cout << matches.size() << std::endl;
 
     mycv::qimg::showDescriptors(first_image_in, second_image_in, std::get<2>(first_descriptors), std::get<2>(second_descriptors),
-        std::get<1>(first_descriptors), std::get<1>(second_descriptors), 16,
-        matches, 255, 128)->save("/Users/ScanNorOne/Desktop/merged.png");
+        std::get<1>(first_descriptors), std::get<1>(second_descriptors), matches, 255, 128)
+            ->save("/Users/ScanNorOne/Desktop/merged.png");
 
     mycv::qimg::showBlobs(first_image_in, std::get<2>(first_descriptors), std::get<1>(first_descriptors))
             ->save("/Users/ScanNorOne/Desktop/b1.png");

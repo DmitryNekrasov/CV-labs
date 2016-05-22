@@ -76,8 +76,8 @@ static void drawTiltedSquare(QPainter& _painter, int _x, int _y, int _size, doub
 }
 
 QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second_image,
-                           const desc::BlobsT& _first_points, const desc::BlobsT& _second_points,
-                           const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles, int _grid_size,
+                           const desc::BlobsT& _first_blobs, const desc::BlobsT& _second_blobs,
+                           const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles,
                            const desc::MatchesT& _matches, unsigned char _point_alpha /* = 255 */,
                            unsigned char _line_alpha /* = 255 */, unsigned char _rect_alpha /* = 255 */)
 {
@@ -103,17 +103,13 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
     QPainter painter(qimage.get());
 
     for (const auto& match : _matches) {
-//        auto x1 = std::get<toUType(Poi::Y)>(_first_points[match.first]);
-//        auto y1 = std::get<toUType(Poi::X)>(_first_points[match.first]);
-//        auto x2 = std::get<toUType(Poi::Y)>(_second_points[match.second]);
-//        auto y2 = std::get<toUType(Poi::X)>(_second_points[match.second]);
+        auto x1 = _first_blobs[match.first].y;
+        auto y1 = _first_blobs[match.first].x;
+        auto x2 = _second_blobs[match.second].y;
+        auto y2 = _second_blobs[match.second].x;
 
-//        std::cout << match.first << " " << match.second << std::endl;
-
-        auto x1 = _first_points[match.first].y;
-        auto y1 = _first_points[match.first].x;
-        auto x2 = _second_points[match.second].y;
-        auto y2 = _second_points[match.second].x;
+        auto radius1 = int(_first_blobs[match.first].sigma * sqrt(2.0));
+        auto radius2 = int(_second_blobs[match.second].sigma * sqrt(2.0));
 
         int r = qrand() % 256, g = qrand() % 256, b = qrand() % 256;
 
@@ -121,8 +117,11 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
         painter.drawLine(x1, y1, x2 + offset, y2);
 
         painter.setPen(QColor(r, g, b, _rect_alpha));
-        drawTiltedSquare(painter, x1, y1, _grid_size, _first_angles[match.first]);
-        drawTiltedSquare(painter, x2 + offset, y2, _grid_size, _second_angles[match.second]);
+        drawTiltedSquare(painter, x1, y1, radius1 * 2, _first_angles[match.first]);
+        drawTiltedSquare(painter, x2 + offset, y2, radius2 * 2, _second_angles[match.second]);
+
+        painter.drawEllipse(x1 - radius1, y1 - radius1, radius1 * 2, radius1 * 2);
+        painter.drawEllipse(x2 - radius2 + offset, y2 - radius2, radius2 * 2, radius2 * 2);
 
         painter.setPen(QColor(r, g, b, _point_alpha));
         drawAroundPoint(painter, x1, y1);
