@@ -143,7 +143,6 @@ QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs, const d
         auto radius = int(blob.sigma * sqrt(2.0));
         painter.drawEllipse(x - radius, y - radius, radius * 2, radius * 2);
         drawTiltedSquare(painter, x, y, radius * 2, _angles[angle_index++]);
-
     }
     return qimage;
 }
