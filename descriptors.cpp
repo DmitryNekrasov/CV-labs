@@ -205,6 +205,7 @@ static bool isExtremum(const Octave& _octave, size_t _k, int _i, int _j) {
 }
 
 static const int g_MinSize = 16;
+static const double g_R = 10;
 
 BlobsT getBlobs(const CMyImage& _image) {
 
@@ -227,7 +228,14 @@ BlobsT getBlobs(const CMyImage& _image) {
             for (int i = 0, ei = layer.image.getHeight(); i < ei; i++) {
                 for (int j = 0, ej = layer.image.getWidth(); j < ej; j++) {
                     if (isExtremum(octave, k, i, j)) {
-                        blobs.emplace_back(i * scale, j * scale, layer.effective_sigma);
+                        auto a = getDx2(layer.image, i, j);
+                        auto b = getDxDy(layer.image, i, j);
+                        auto c = getDy2(layer.image, i, j);
+                        auto det = a * c - smpl::sqr(b);
+                        auto trace = a + c;
+                        if (smpl::sqr(trace) / det <= smpl::sqr(g_R + 1) / g_R) {
+                            blobs.emplace_back(i * scale, j * scale, layer.effective_sigma);
+                        }
                     }
                 }
             }

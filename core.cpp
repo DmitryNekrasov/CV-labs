@@ -1,6 +1,7 @@
 #include "core.h"
 
 #include <array>
+#include <numeric>
 
 #include "simple.h"
 
@@ -162,7 +163,17 @@ SeparableFilterT getGaussSeparable(double _sigma) {
     int half = kernel_size / 2;
 
     for (int i = 0; i < kernel_size; i++) {
-        separable_filter.first[i] = separable_filter.second[i] = sqrt(smpl::gauss(i - half, i - half, _sigma));
+        separable_filter.first[i] = sqrt(smpl::gauss(i - half, i - half, _sigma));
+    }
+
+    auto sum = std::accumulate(separable_filter.first.begin(), separable_filter.first.end(), 0.0, std::plus<double>());
+    std::transform(separable_filter.first.begin(), separable_filter.first.end(), separable_filter.first.begin(),
+                    [sum](const auto& _intensity) {
+                        return _intensity / sum;
+                    });
+
+    for (int i = 0; i < kernel_size; i++) {
+        separable_filter.second[i] = separable_filter.first[i];
     }
 
     return separable_filter;
@@ -174,8 +185,11 @@ CMyImage getDownscale(const CMyImage& _image) {
 
     for (int i = 0, ei = result_image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = result_image.getWidth(); j < ej; j++) {
-            auto intensity = _image.get(i * 2, j * 2);
-            result_image.set(i, j, intensity);
+            auto intensity = _image.get(i * 2, j * 2) +
+                    _image.get(i * 2 + 1, j * 2) +
+                    _image.get(i * 2, j * 2 + 1) +
+                    _image.get(i * 2 + 1, j * 2 + 1);
+            result_image.set(i, j, intensity / 4);
         }
     }
 
@@ -210,13 +224,13 @@ double getDy(const CMyImage& _image, int _row, int _col) {
     return getDerivative(_image.get(_row - 1, _col), _image.get(_row + 1, _col));
 }
 
-static const std::array<double, 5> g_SecondDerivative{ {0.232905f, 0.002668, -0.471147, 0.002668, 0.232905} };
+static const std::array<double, 5> g_SecondDerivative{ {0.232905, 0.002668, -0.471147, 0.002668, 0.232905} };
 
 double getDx2(const CMyImage& _image, int _row, int _col) {
     double sum = 0;
     auto half = int(g_SecondDerivative.size()) / 2;
     for (size_t i = 0, ei = g_SecondDerivative.size(); i < ei; i++) {
-        sum += g_SecondDerivative[i] * _image.get(_row - half + int(i), _col);
+        sum += g_SecondDerivative[i] * _image.get(_row, _col - half + int(i));
     }
     return sum;
 }
@@ -225,7 +239,7 @@ double getDy2(const CMyImage& _image, int _row, int _col) {
     double sum = 0;
     auto half = int(g_SecondDerivative.size()) / 2;
     for (size_t i = 0, ei = g_SecondDerivative.size(); i < ei; i++) {
-        sum += g_SecondDerivative[i] * _image.get(_row, _col - half + int(i));
+        sum += g_SecondDerivative[i] * _image.get(_row - half + int(i), _col);
     }
     return sum;
 }

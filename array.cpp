@@ -16,4 +16,19 @@ double& CArray::operator[](int _index) const {
     return m_Array[size_t(_index)];
 }
 
+double* CArray::begin() {
+    return m_Array.get();
+}
+
+double* CArray::end() {
+    return m_Array.get() + m_Size;
+}
+
+const double* CArray::begin() const {
+    return m_Array.get();
+}
+const double* CArray::end() const {
+    return m_Array.get() + m_Size;
+}
+
 } // mycv

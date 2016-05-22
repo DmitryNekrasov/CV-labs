@@ -13,6 +13,11 @@ public:
 
     double& operator[](int _index) const;
 
+    double* begin();
+    double* end();
+    const double* begin() const;
+    const double* end() const;
+
 private:
     int m_Size;
     std::unique_ptr<double[]> m_Array;
