@@ -77,6 +77,15 @@ CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _f
     return result_image;
 }
 
+double getGradientValue(double _gx, double _gy) {
+    return sqrt(smpl::sqr(_gx) + smpl::sqr(_gy));
+}
+
+double getGradientDirection(double _gx, double _gy) {
+    auto angle = atan2(_gy, _gx);
+    return angle >= 0 ? angle : angle + M_PI * 2;
+}
+
 CMyImage getSobelDx(const CMyImage& _image) {
     CMatrix kernel_x(sobel_kernel_size, sobel_kernel_size, sobel_kernel_x_array);
     auto result_image = applyConvolution(_image, kernel_x);
@@ -88,10 +97,6 @@ CMyImage getSobelDy(const CMyImage& _image) {
     CMatrix kernel_y(sobel_kernel_size, sobel_kernel_size, sobel_kernel_y_array);
     auto result_image = applyConvolution(_image, kernel_y);
     return result_image;
-}
-
-static inline double getGradientValue(double _gx, double _gy) {
-    return sqrt(smpl::sqr(_gx) + smpl::sqr(_gy));
 }
 
 CMyImage getGradientValues(const CMyImage& _dx, const CMyImage& _dy) {
@@ -106,11 +111,6 @@ CMyImage getGradientValues(const CMyImage& _dx, const CMyImage& _dy) {
     }
 
     return result_image;
-}
-
-static inline double getGradientDirection(double _gx, double _gy) {
-    auto angle = atan2(_gy, _gx);
-    return angle >= 0 ? angle : angle + M_PI * 2;
 }
 
 CMyImage getGradientDirections(const CMyImage& _dx, const CMyImage& _dy) {

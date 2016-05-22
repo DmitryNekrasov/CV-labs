@@ -1,5 +1,6 @@
 #include "descriptors.h"
 
+#include <algorithm>
 #include <array>
 #include <numeric>
 
@@ -171,6 +172,152 @@ std::tuple<DescriptorsT, AnglesT> getDescriptors(const CMyImage& _image, poi::Po
     return std::make_tuple(descriptors, angles);
 }
 
+static const int g_MinSize = 16;
+
+std::tuple<DescriptorsT, AnglesT, BlobsT> getDescriptors(const CMyImage& _image, int _descriptor_size, int _histogram_value_number)
+{
+    size_t s = 8;
+    double sigma_a = 0.5;
+    double sigma_0 = 1.6;
+    auto n = size_t(std::min(std::log2(double(_image.getHeight()) / g_MinSize),
+                      std::log2(double(_image.getWidth()) / g_MinSize))) + 1;
+
+    auto gauss_pyramid = getGaussPyramid(_image, n, s, sigma_a, sigma_0);
+
+    auto blobs = getBlobs(gauss_pyramid);
+
+    std::array<double, g_WideHistogramSize> wide_histogram;
+    const auto wide_bin_size = M_PI * 2 / g_WideHistogramSize;
+
+    auto get_final_angle = [&](int _max_index) {
+        auto angle_center = _max_index * wide_bin_size + wide_bin_size / 2;
+        auto angle_left = angle_center - wide_bin_size;
+        auto angle_right = angle_center + wide_bin_size;
+        auto y_center = wide_histogram[size_t(_max_index)];
+        auto y_left = wide_histogram[size_t(smpl::modulo(_max_index - 1, g_WideHistogramSize))];
+        auto y_right = wide_histogram[size_t(smpl::modulo(_max_index + 1, g_WideHistogramSize))];
+        if (y_center >= y_left && y_center >= y_right) {
+            return specifyAngle(angle_center, y_center, angle_left, y_left, angle_right, y_right);
+        }
+        return angle_center;
+    };
+
+    AnglesT angles;
+
+    for (const auto& blob : blobs) {
+        std::fill(wide_histogram.begin(), wide_histogram.end(), 0);
+
+        const auto& image = blob.layer->image;
+        auto grid_size = int(_descriptor_size * (blob.layer->current_sigma / sigma_0));
+        auto grid_half = grid_size / 2;
+
+        for (int i = 0; i < grid_size; i++) {
+            for (int j = 0; j < grid_size; j++) {
+                auto u = blob.x / blob.scale - grid_half + i;
+                auto v = blob.y / blob.scale - grid_half + j;
+
+                auto dx = getDx(image, u, v);
+                auto dy = getDy(image, u, v);
+
+                auto gradient_value = getGradientValue(dx, dy);
+                auto gradient_direction = getGradientDirection(dx, dy);
+
+                auto first_bin_index = int(gradient_direction / wide_bin_size);
+                auto distance_to_bin_center = gradient_direction - (first_bin_index * wide_bin_size + wide_bin_size / 2);
+                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
+
+                first_bin_index %= g_WideHistogramSize;
+                second_bin_index = smpl::modulo(second_bin_index, g_WideHistogramSize);
+
+                auto second_percent = fabs(distance_to_bin_center) / wide_bin_size;
+                auto first_percent = 1 - second_percent;
+
+                wide_histogram[size_t(first_bin_index)] += first_percent * gradient_value;
+                wide_histogram[size_t(second_bin_index)] += second_percent * gradient_value;
+            }
+        }
+
+        auto two_max = algo::twoElement(wide_histogram.begin(), wide_histogram.end(),
+            [](const auto& _first, const auto& _second) {
+                return _first > _second;
+            });
+
+        auto first_max_index = int(two_max.first - wide_histogram.begin());
+        auto first_angle = get_final_angle(first_max_index);
+        angles.push_back(first_angle);
+    }
+
+    int histogram_number = 16;
+    int descriptor_value_number = histogram_number * _histogram_value_number;
+
+    DescriptorsT descriptors;
+
+    const auto z = M_PI * 2 / _histogram_value_number;
+
+    size_t angle_index = 0;
+
+    for (const auto& blob : blobs) {
+        const auto& image = blob.layer->image;
+        auto grid_size = int(_descriptor_size * (blob.layer->current_sigma / sigma_0));
+        auto grid_half = grid_size / 2;
+        double block_size = grid_size / 4.0;
+
+        descriptors.emplace_back(descriptor_value_number, 0);
+        auto& descriptor = descriptors.back();
+
+        const auto angle = angles[angle_index++];
+        const auto gap = int(grid_half * (sqrt(2.0) - 1.0));
+
+        for (int i = -gap, ei = grid_size + gap; i < ei; i++) {
+            for (int j = -gap, ej = grid_size + gap; j < ej; j++) {
+                auto u = blob.x / blob.scale - grid_half + i;
+                auto v = blob.y / blob.scale - grid_half + j;
+
+                auto dx = getDx(image, u, v);
+                auto dy = getDy(image, u, v);
+
+                auto gradient_value = getGradientValue(dx, dy);
+                auto gradient_direction = getGradientDirection(dx, dy) - angle;
+
+                auto first_bin_index = int(gradient_direction / z);
+                auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
+                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
+
+                first_bin_index %= _histogram_value_number;
+                second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
+
+                auto new_i = int((i - grid_half) * cos(angle) - (j - grid_half) * sin(angle));
+                auto new_j = int((i - grid_half) * sin(angle) + (j - grid_half) * cos(angle));
+
+                new_i += grid_half;
+                new_j += grid_half;
+
+                if (new_i >= 0 && new_i < grid_size && new_j >= 0 && new_j < grid_size) {
+                    auto histogram_start_index = (4 * std::min(int(new_i / block_size), 3) + std::min(int(new_j / block_size), 3)) * _histogram_value_number;
+
+                    auto second_percent = fabs(distance_to_bin_center) / z;
+                    auto first_percent = 1 - second_percent;
+
+                    descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
+                    descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
+                }
+            }
+        }
+    }
+
+    for (auto& descriptor : descriptors) {
+        auto vector_length = getVectorLength(descriptor);
+        std::transform(descriptor.begin(), descriptor.end(), descriptor.begin(),
+            [vector_length](const auto& _value) {
+                return _value / vector_length;
+            });
+    }
+
+    std::cout << "Descriptors count = " << descriptors.size() << std::endl;
+
+    return std::make_tuple(descriptors, angles, blobs);
+}
+
 static double getDistance(const DescriptorT& _first, const DescriptorT& _second) {
     double sum = 0;
     for (size_t i = 0, ei = _first.size(); i < ei; i++) {
@@ -181,7 +328,7 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
 
 static bool isExtremum(const Octave& _octave, size_t _k, int _i, int _j) {
     auto center = _octave.layers[_k].image.get(_i, _j);
-    if (fabs(center) < 0.03) {
+    if (fabs(center) < 0.035) {
         return false;
     }
 
@@ -204,24 +351,16 @@ static bool isExtremum(const Octave& _octave, size_t _k, int _i, int _j) {
     return center < *minmax.first || center > *minmax.second;
 }
 
-static const int g_MinSize = 16;
 static const double g_R = 10;
 
-BlobsT getBlobs(const CMyImage& _image) {
-
-    size_t s = 8;
-    double sigma_a = 0.5;
-    double sigma_0 = 1.6;
-    auto n = size_t(std::min(std::log2(double(_image.getHeight()) / g_MinSize),
-                      std::log2(double(_image.getWidth()) / g_MinSize))) + 1;
-
-    auto gauss_pyramid = getGaussPyramid(_image, n, s, sigma_a, sigma_0);
-    auto dog = getDog(gauss_pyramid);
+BlobsT getBlobs(const PyramidT& _pyramid) {
+    auto dog = getDog(_pyramid);
     savePyramid(dog, "/Users/ScanNorOne/Desktop/", true);
 
     BlobsT blobs;
 
     int scale = 1;
+    size_t octave_number = 0;
     for (const auto& octave : dog) {
         for (size_t k = 1, ek = octave.layers.size() - 1; k < ek; k++) {
             const auto& layer = octave.layers[k];
@@ -234,13 +373,16 @@ BlobsT getBlobs(const CMyImage& _image) {
                         auto det = a * c - smpl::sqr(b);
                         auto trace = a + c;
                         if (smpl::sqr(trace) / det <= smpl::sqr(g_R + 1) / g_R) {
-                            blobs.emplace_back(i * scale, j * scale, layer.effective_sigma);
+                            const auto& gauss_layer = _pyramid[octave_number].layers[k];
+                            blobs.emplace_back(round((i + 0.5) * scale - 0.5), round((j + 0.5) * scale - 0.5),
+                                               layer.effective_sigma, &gauss_layer, scale);
                         }
                     }
                 }
             }
         }
         scale *= 2;
+        octave_number++;
     }
 
     return blobs;

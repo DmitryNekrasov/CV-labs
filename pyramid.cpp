@@ -114,7 +114,7 @@ PyramidT getDog(const PyramidT& _pyramid) {
                                                   (second_layer.image - first_layer.image) / (exp2(1.0 / octave.layers.size()) - 1));
         }
     }
-    return  dog;
+    return dog;
 }
 
 } // mycv

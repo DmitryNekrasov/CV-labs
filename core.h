@@ -13,6 +13,9 @@ using SeparableFilterT = std::pair<CArray, CArray>;
 CMyImage applyConvolution(const CMyImage& _image, const CMatrix& _kernel);
 CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _filter);
 
+double getGradientValue(double _gx, double _gy);
+double getGradientDirection(double _gx, double _gy);
+
 CMyImage getSobelDx(const CMyImage& _image);
 CMyImage getSobelDy(const CMyImage& _image);
 CMyImage getGradientValues(const CMyImage& _dx, const CMyImage& _dy);

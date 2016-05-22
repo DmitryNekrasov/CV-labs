@@ -76,7 +76,7 @@ static void drawTiltedSquare(QPainter& _painter, int _x, int _y, int _size, doub
 }
 
 QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second_image,
-                           const poi::PointsT& _first_points, const poi::PointsT& _second_points,
+                           const desc::BlobsT& _first_points, const desc::BlobsT& _second_points,
                            const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles, int _grid_size,
                            const desc::MatchesT& _matches, unsigned char _point_alpha /* = 255 */,
                            unsigned char _line_alpha /* = 255 */, unsigned char _rect_alpha /* = 255 */)
@@ -103,10 +103,17 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
     QPainter painter(qimage.get());
 
     for (const auto& match : _matches) {
-        auto x1 = std::get<toUType(Poi::Y)>(_first_points[match.first]);
-        auto y1 = std::get<toUType(Poi::X)>(_first_points[match.first]);
-        auto x2 = std::get<toUType(Poi::Y)>(_second_points[match.second]);
-        auto y2 = std::get<toUType(Poi::X)>(_second_points[match.second]);
+//        auto x1 = std::get<toUType(Poi::Y)>(_first_points[match.first]);
+//        auto y1 = std::get<toUType(Poi::X)>(_first_points[match.first]);
+//        auto x2 = std::get<toUType(Poi::Y)>(_second_points[match.second]);
+//        auto y2 = std::get<toUType(Poi::X)>(_second_points[match.second]);
+
+//        std::cout << match.first << " " << match.second << std::endl;
+
+        auto x1 = _first_points[match.first].y;
+        auto y1 = _first_points[match.first].x;
+        auto x2 = _second_points[match.second].y;
+        auto y2 = _second_points[match.second].x;
 
         int r = qrand() % 256, g = qrand() % 256, b = qrand() % 256;
 
@@ -125,15 +132,18 @@ QImagePtrT showDescriptors(const CMyImage& _first_image, const CMyImage& _second
     return qimage;
 }
 
-QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs) {
+QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs, const desc::AnglesT& _angles) {
     auto qimage = toQImagePtr(_image);
     QPainter painter(qimage.get());
-    painter.setPen(Qt::red);
+    size_t angle_index = 0;
     for (const auto& blob : _blobs) {
+        int r = qrand() % 256, g = qrand() % 256, b = qrand() % 256;
+        painter.setPen(QColor(r, g, b));
         auto x = blob.y;
         auto y = blob.x;
         auto radius = int(blob.sigma * sqrt(2.0));
         painter.drawEllipse(x - radius, y - radius, radius * 2, radius * 2);
+        drawTiltedSquare(painter, x, y, radius * 2, _angles[angle_index++]);
 
     }
     return qimage;
