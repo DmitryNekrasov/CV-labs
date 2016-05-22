@@ -181,7 +181,7 @@ static double getDistance(const DescriptorT& _first, const DescriptorT& _second)
 
 static bool isExtremum(const Octave& _octave, size_t _k, int _i, int _j) {
     auto center = _octave.layers[_k].image.get(_i, _j);
-    if (fabs(center) < 0.007) {
+    if (fabs(center) < 0.03) {
         return false;
     }
 

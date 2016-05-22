@@ -25,6 +25,7 @@ public:
     CMyImage getNormalize() const;
 
     friend CMyImage operator-(const CMyImage& _left, const CMyImage& _right);
+    friend CMyImage operator/(const CMyImage& _left, const double _value);
 
 private:
     std::pair<int, int> getClampIndices(int _row, int _col) const;

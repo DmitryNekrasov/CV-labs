@@ -16,7 +16,7 @@
 
 int main() {
 
-    QImage qimage_in("/Users/ScanNorOne/Desktop/q1.png");
+    QImage qimage_in("/Users/ScanNorOne/Desktop/test_img.png");
     mycv::CMyImage image_in(qimage_in);
 
     auto blobs = mycv::desc::getBlobs(image_in);

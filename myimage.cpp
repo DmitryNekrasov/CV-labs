@@ -185,4 +185,12 @@ CMyImage operator-(const CMyImage& _left, const CMyImage& _right) {
     return result;
 }
 
+CMyImage operator/(const CMyImage& _left, const double _value) {
+    CMyImage result(_left.getHeight(), _left.getWidth());
+    std::transform(_left.begin(), _left.end(), result.begin(), [_value](const auto& _intensity) {
+        return _intensity / _value;
+    });
+    return result;
+}
+
 } // mycv

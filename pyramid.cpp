@@ -111,7 +111,7 @@ PyramidT getDog(const PyramidT& _pyramid) {
             const auto& first_layer = octave.layers[i];
             const auto& second_layer = octave.layers[i + 1];
             dog_octave.layers.emplace_back(first_layer.current_sigma, first_layer.effective_sigma,
-                                                  second_layer.image - first_layer.image);
+                                                  (second_layer.image - first_layer.image) / (exp2(1.0 / octave.layers.size()) - 1));
         }
     }
     return  dog;
