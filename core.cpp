@@ -1,5 +1,7 @@
 #include "core.h"
 
+#include <array>
+
 #include "simple.h"
 
 namespace mycv {
@@ -194,6 +196,45 @@ CMyImage getUpscale(const CMyImage& _image) {
     }
 
     return result_image;
+}
+
+static double getDerivative(double _v1, double _v2) {
+    return (-_v1 + _v2) / 2;
+}
+
+double getDx(const CMyImage& _image, int _row, int _col) {
+    return getDerivative(_image.get(_row, _col - 1), _image.get(_row, _col + 1));
+}
+
+double getDy(const CMyImage& _image, int _row, int _col) {
+    return getDerivative(_image.get(_row - 1, _col), _image.get(_row + 1, _col));
+}
+
+static const std::array<double, 5> g_SecondDerivative{ {0.232905f, 0.002668, -0.471147, 0.002668, 0.232905} };
+
+double getDx2(const CMyImage& _image, int _row, int _col) {
+    double sum = 0;
+    auto half = int(g_SecondDerivative.size()) / 2;
+    for (size_t i = 0, ei = g_SecondDerivative.size(); i < ei; i++) {
+        sum += g_SecondDerivative[i] * _image.get(_row - half + int(i), _col);
+    }
+    return sum;
+}
+
+double getDy2(const CMyImage& _image, int _row, int _col) {
+    double sum = 0;
+    auto half = int(g_SecondDerivative.size()) / 2;
+    for (size_t i = 0, ei = g_SecondDerivative.size(); i < ei; i++) {
+        sum += g_SecondDerivative[i] * _image.get(_row, _col - half + int(i));
+    }
+    return sum;
+}
+
+double getDxDy(const CMyImage& _image, int _row, int _col) {
+    auto dx_top = getDx(_image, _row - 1, _col);
+    auto dx_bottom = getDx(_image, _row + 1, _col);
+    auto dxdy = getDerivative(dx_top, dx_bottom);
+    return dxdy;
 }
 
 } // mycv

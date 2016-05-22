@@ -25,4 +25,10 @@ SeparableFilterT getGaussSeparable(double _sigma);
 CMyImage getDownscale(const CMyImage& _image);
 CMyImage getUpscale(const CMyImage& _image);
 
+double getDx(const CMyImage& _image, int _row, int _col);
+double getDy(const CMyImage& _image, int _row, int _col);
+double getDx2(const CMyImage& _image, int _row, int _col);
+double getDy2(const CMyImage& _image, int _row, int _col);
+double getDxDy(const CMyImage& _image, int _row, int _col);
+
 } // mycv
