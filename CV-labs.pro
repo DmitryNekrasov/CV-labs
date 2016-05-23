@@ -32,3 +32,11 @@ HEADERS += \
     descriptors.h \
     algo.h \
     pyramid.h
+
+LIBS += -L/usr/local/lib \
+        -lgsl \
+        -lgslcblas
+
+INCLUDEPATH += /usr/local/include
+
+DEPENDPATH += /usr/local/include
