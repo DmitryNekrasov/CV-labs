@@ -16,9 +16,9 @@
 
 int main() {
 
-    QImage first_qimage_in("/Users/ScanNorOne/Desktop/q.png");
+    QImage first_qimage_in("/Users/ScanNorOne/Desktop/q1.png");
     mycv::CMyImage first_image_in(first_qimage_in);
-    QImage second_qimage_in("/Users/ScanNorOne/Desktop/q2.png");
+    QImage second_qimage_in("/Users/ScanNorOne/Desktop/q3.png");
     mycv::CMyImage second_image_in(second_qimage_in);
 
     auto first_descriptors = mycv::desc::getDescriptors(first_image_in, 16, 8);
