@@ -150,13 +150,6 @@ std::tuple<DescriptorsT, AnglesT, BlobsT> getDescriptors(const CMyImage& _image,
                 auto gradient_value = getGradientValue(dx, dy);
                 auto gradient_direction = getGradientDirection(dx, dy) - angle;
 
-                auto first_bin_index = int(gradient_direction / z);
-                auto distance_to_bin_center = gradient_direction - (first_bin_index * z + z / 2);
-                auto second_bin_index = distance_to_bin_center > 0 ? first_bin_index + 1 : first_bin_index - 1;
-
-                first_bin_index %= _histogram_value_number;
-                second_bin_index = smpl::modulo(second_bin_index, _histogram_value_number);
-
                 auto new_i = int((i - grid_half) * cos(angle) - (j - grid_half) * sin(angle));
                 auto new_j = int((i - grid_half) * sin(angle) + (j - grid_half) * cos(angle));
 
@@ -164,14 +157,33 @@ std::tuple<DescriptorsT, AnglesT, BlobsT> getDescriptors(const CMyImage& _image,
                 new_j += grid_half;
 
                 if (new_i >= 0 && new_i < grid_size && new_j >= 0 && new_j < grid_size) {
-                    auto histogram_start_index = (4 * std::min(int(new_i / block_size), 3) + std::min(int(new_j / block_size), 3)) * _histogram_value_number;
 
-                    auto second_percent = fabs(distance_to_bin_center) / z;
-                    auto first_percent = 1 - second_percent;
+                    auto histogram_x = std::min(int(round(new_i / block_size)), 3);
+                    auto histogram_y = std::min(int(round(new_j / block_size)), 3);
+                    auto histogram_angle = int(round(gradient_direction / z));
 
-                    descriptor[size_t(histogram_start_index + first_bin_index)] += first_percent * gradient_value;
-                    descriptor[size_t(histogram_start_index + second_bin_index)] += second_percent * gradient_value;
+                    for (int x = histogram_x - 1; x <= histogram_x; x++) {
+                        if (x >= 0 && x < 4) {
+                            auto dist_to_center_x = fabs(new_i - (block_size * x + block_size / 2));
+                            auto percent_x = 1 - dist_to_center_x / block_size;
+                            for (int y = histogram_y - 1; y <= histogram_y; y++) {
+                                if (y >= 0 && y < 4) {
+                                    auto dist_to_center_y = fabs(new_j - (block_size * y + block_size / 2));
+                                    auto percent_y = 1 - dist_to_center_y / block_size;
+                                    for (int d = histogram_angle - 1; d <= histogram_angle; d++) {
+                                        auto bin_index = smpl::modulo(d, _histogram_value_number);
+                                        auto dist_to_center_bin = fabs(gradient_direction - (z * d + z / 2));
+                                        auto percent_angle = 1 - dist_to_center_bin / z;
+                                        auto index = (4 * x + y) * _histogram_value_number + bin_index;
+                                        descriptor[size_t(index)] += gradient_value * percent_x * percent_y * percent_angle;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
+
             }
         }
     }
