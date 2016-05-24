@@ -150,9 +150,9 @@ QImagePtrT showBlobs(const CMyImage& _image, const desc::BlobsT& _blobs, const d
 QImagePtrT getPanorama(const CMyImage& _first_image, const CMyImage& _second_image,
                        const transform::TransformationT& _h)
 {
-    auto first_width = _first_image.getWidth();
-    auto first_height = _first_image.getHeight();
-    auto qimage_ptr = std::make_unique<QImage>(first_width * 3, first_height * 3, QImage::Format_RGB32);
+    auto second_width = _second_image.getWidth();
+    auto second_height = _second_image.getHeight();
+    auto qimage_ptr = std::make_unique<QImage>(second_width * 3, second_height * 3, QImage::Format_RGB32);
 
     transform::TransformationT h;
     std::transform(_h.begin(), _h.end(), h.begin(), [&](const auto& _value) {
@@ -162,13 +162,13 @@ QImagePtrT getPanorama(const CMyImage& _first_image, const CMyImage& _second_ima
     QTransform transform(h[4], h[1], h[7], h[3], h[0], h[6], h[5], h[2], h[8]);
     QTransform transfer(1, 0, 0,
                         0, 1, 0,
-                        first_width, first_height, 1);
+                        second_width, second_height, 1);
 
     auto result_transform = transform * transfer;
 
     QPainter painter(qimage_ptr.get());
 
-    painter.drawImage(first_width, first_height, *toQImagePtr(_second_image));
+    painter.drawImage(second_width, second_height, *toQImagePtr(_second_image));
     painter.setTransform(result_transform);
     painter.drawImage(0, 0, *toQImagePtr(_first_image));
 
