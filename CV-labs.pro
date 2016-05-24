@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     poi.cpp \
     qimagegenerator.cpp \
     descriptors.cpp \
-    pyramid.cpp
+    pyramid.cpp \
+    transform.cpp
 
 HEADERS += \
     matrix.h \
@@ -31,7 +32,8 @@ HEADERS += \
     qimagegenerator.h \
     descriptors.h \
     algo.h \
-    pyramid.h
+    pyramid.h \
+    transform.h
 
 LIBS += -L/usr/local/lib \
         -lgsl \
