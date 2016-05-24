@@ -13,29 +13,46 @@
 #include "pyramid.h"
 #include "qimagegenerator.h"
 #include "simple.h"
+#include "transform.h"
 
 int main() {
 
-    QImage first_qimage_in("/Users/ScanNorOne/Desktop/q1.png");
+    QImage first_qimage_in("/Users/ScanNorOne/Desktop/city1.png");
     mycv::CMyImage first_image_in(first_qimage_in);
-    QImage second_qimage_in("/Users/ScanNorOne/Desktop/q3.png");
+    QImage second_qimage_in("/Users/ScanNorOne/Desktop/city2.png");
     mycv::CMyImage second_image_in(second_qimage_in);
 
-    auto first_descriptors = mycv::desc::getDescriptors(first_image_in, 16, 8);
-    auto second_descriptors = mycv::desc::getDescriptors(second_image_in, 16, 8);
+    auto first_tuple = mycv::desc::getDescriptors(first_image_in, 16, 8);
+    auto second_tuple = mycv::desc::getDescriptors(second_image_in, 16, 8);
 
-    auto matches = mycv::desc::getMatches(std::get<0>(first_descriptors), std::get<0>(second_descriptors));
+    const auto& first_descriptors = std::get<0>(first_tuple);
+    const auto& second_descriptors = std::get<0>(second_tuple);
+
+    const auto& first_angles = std::get<1>(first_tuple);
+    const auto& second_angles = std::get<1>(second_tuple);
+
+    const auto& first_blobs = std::get<2>(first_tuple);
+    const auto& second_blobs = std::get<2>(second_tuple);
+
+    auto matches = mycv::desc::getMatches(first_descriptors, second_descriptors);
 
     std::cout << matches.size() << std::endl;
 
-    mycv::qimg::showDescriptors(first_image_in, second_image_in, std::get<2>(first_descriptors), std::get<2>(second_descriptors),
-        std::get<1>(first_descriptors), std::get<1>(second_descriptors), matches, 255, 128)
+    auto h = mycv::transform::ransac(first_blobs, second_blobs, matches);
+    for (auto&& d : h) {
+        std::cout << d << std::endl;
+    }
+
+    mycv::qimg::showDescriptors(first_image_in, second_image_in, first_blobs, second_blobs,
+        first_angles, second_angles, matches, 255, 128)
             ->save("/Users/ScanNorOne/Desktop/merged.png");
 
-    mycv::qimg::showBlobs(first_image_in, std::get<2>(first_descriptors), std::get<1>(first_descriptors))
+    mycv::qimg::showBlobs(first_image_in, first_blobs, first_angles)
             ->save("/Users/ScanNorOne/Desktop/b1.png");
-    mycv::qimg::showBlobs(second_image_in, std::get<2>(second_descriptors), std::get<1>(second_descriptors))
+    mycv::qimg::showBlobs(second_image_in, second_blobs, second_angles)
             ->save("/Users/ScanNorOne/Desktop/b2.png");
+
+    mycv::qimg::getPanorama(first_image_in, second_image_in, h)->save("/Users/ScanNorOne/Desktop/panorama.png");
 
     return 0;
 }

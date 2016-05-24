@@ -13,7 +13,7 @@ namespace mycv {
 
 namespace transform {
 
-TransformationT getTransformation(const desc::BlobsT& _first, const desc::BlobsT& _second) {
+static TransformationT getTransformation(const desc::BlobsT& _first, const desc::BlobsT& _second) {
     assert(_first.size() == _second.size());
 
     TransformationT transformation;
@@ -57,13 +57,11 @@ TransformationT getTransformation(const desc::BlobsT& _first, const desc::BlobsT
 TransformationT ransac(const desc::BlobsT& _first, const desc::BlobsT& _second, const desc::MatchesT& _matches,
                        size_t _iter_count, double _threshold)
 {
-    assert(_first.size() == _second.size());
-
-    auto n = _first.size();
+    auto n = _matches.size();
 
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution<size_t> random_int(0, n);
+    std::uniform_int_distribution<size_t> random_int(0, n - 1);
 
     const size_t points_count = 4;
 
@@ -73,7 +71,8 @@ TransformationT ransac(const desc::BlobsT& _first, const desc::BlobsT& _second, 
     TransformationT result;
     size_t max_inliers_count = 0;
 
-    for (size_t iter = 0; iter < _iter_count && max_inliers_count < n / 2; iter++) {
+    size_t iter;
+    for (iter = 0; iter < _iter_count && max_inliers_count < n / 2; iter++) {
         for (size_t i = 0; i < points_count; i++) {
             auto rand = random_int(mt);
             left[i] = _first[_matches[rand].first];
@@ -100,6 +99,8 @@ TransformationT ransac(const desc::BlobsT& _first, const desc::BlobsT& _second, 
             result = h;
         }
     }
+
+    std::cout << "RANSAC iter count: " << iter << std::endl;
 
     return result;
 }
