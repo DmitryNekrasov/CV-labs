@@ -2,8 +2,12 @@
 
 #include <cassert>
 
+#include <random>
+
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
+
+#include "simple.h"
 
 namespace mycv {
 
@@ -48,6 +52,56 @@ TransformationT getTransformation(const desc::BlobsT& _first, const desc::BlobsT
     gsl_matrix_free(a);
 
     return transformation;
+}
+
+TransformationT ransac(const desc::BlobsT& _first, const desc::BlobsT& _second, const desc::MatchesT& _matches,
+                       size_t _iter_count, double _threshold)
+{
+    assert(_first.size() == _second.size());
+
+    auto n = _first.size();
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<size_t> random_int(0, n);
+
+    const size_t points_count = 4;
+
+    desc::BlobsT left(points_count);
+    desc::BlobsT right(points_count);
+
+    TransformationT result;
+    size_t max_inliers_count = 0;
+
+    for (size_t iter = 0; iter < _iter_count && max_inliers_count < n / 2; iter++) {
+        for (size_t i = 0; i < points_count; i++) {
+            auto rand = random_int(mt);
+            left[i] = _first[_matches[rand].first];
+            right[i] = _second[_matches[rand].second];
+        }
+
+        auto h = getTransformation(left, right);
+        size_t inliers_count = 0;
+        for (const auto& match : _matches) {
+            const auto& p = _first[match.first];
+            auto den = h[6] * p.x + h[7] * p.y + h[8];
+            auto x_hatch = (h[0] * p.x + h[1] * p.y + h[2]) / den;
+            auto y_hatch = (h[3] * p.x + h[4] * p.y + h[5]) / den;
+            const auto& second_point = _second[match.second];
+            auto dx = second_point.x - x_hatch;
+            auto dy = second_point.y - y_hatch;
+            if (smpl::sqr(dx) + smpl::sqr(dy) < _threshold) {
+                inliers_count++;
+            }
+        }
+
+        if (inliers_count > max_inliers_count) {
+            max_inliers_count = inliers_count;
+            result = h;
+        }
+    }
+
+    return result;
 }
 
 } // transform

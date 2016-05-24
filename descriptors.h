@@ -24,6 +24,10 @@ struct Blob {
         , scale(_scale)
     {}
 
+    Blob()
+        : Blob(0, 0, 0, nullptr, 0)
+    {}
+
     int x;
     int y;
     double sigma;
