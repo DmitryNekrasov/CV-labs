@@ -20,7 +20,7 @@ static TransformationT getTransformation(const desc::BlobsT& _first, const desc:
 
     auto n = _first.size();
 
-    gsl_matrix* a = gsl_matrix_alloc(2 * n, transformation.size());
+    auto* a = gsl_matrix_alloc(2 * n, transformation.size());
 
     for (size_t i = 0; i < n; i++) {
         const auto& p1 = _first[i];
@@ -33,22 +33,26 @@ static TransformationT getTransformation(const desc::BlobsT& _first, const desc:
         }
     }
 
-    gsl_matrix* at_a = gsl_matrix_alloc(transformation.size(), transformation.size());
-    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, a, a, 0, at_a);
+    using MatrixMemoryT = std::array<double, transformation.size() * transformation.size()>;
 
-    gsl_matrix* v = gsl_matrix_alloc(transformation.size(), transformation.size());
-    gsl_vector* s = gsl_vector_alloc(transformation.size());
-    gsl_vector* work = gsl_vector_alloc(transformation.size());
-    gsl_linalg_SV_decomp(at_a, v, s, work);
+    MatrixMemoryT at_a_memory;
+    auto at_a = gsl_matrix_view_array(at_a_memory.begin(), transformation.size(), transformation.size()).matrix;
+
+    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, a, a, 0, &at_a);
+
+    MatrixMemoryT v_memory;
+    auto v = gsl_matrix_view_array(v_memory.begin(), transformation.size(), transformation.size()).matrix;
+
+    TransformationT s_memory, work_memory;
+    auto s = gsl_vector_view_array(s_memory.begin(), s_memory.size()).vector;
+    auto work = gsl_vector_view_array(work_memory.begin(), work_memory.size()).vector;
+
+    gsl_linalg_SV_decomp(&at_a, &v, &s, &work);
 
     for (size_t i = 0, ei = transformation.size(); i < ei; i++) {
-        transformation[i] = gsl_matrix_get(v, i, transformation.size() - 1);
+        transformation[i] = gsl_matrix_get(&v, i, transformation.size() - 1);
     }
 
-    gsl_vector_free(work);
-    gsl_vector_free(s);
-    gsl_matrix_free(v);
-    gsl_matrix_free(at_a);
     gsl_matrix_free(a);
 
     return transformation;
