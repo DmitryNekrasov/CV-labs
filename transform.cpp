@@ -185,7 +185,7 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
     for (auto match_index : map[max_index]) {
         const auto& match = _matches[match_index];
         first_blobs.push_back(_first_blobs[match.first]);
-        second_blobs.push_back((_second_blobs[match.second]));
+        second_blobs.push_back(_second_blobs[match.second]);
     }
 
     return getTransformation(first_blobs, second_blobs);
