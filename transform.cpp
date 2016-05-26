@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include <random>
+#include <unordered_map>
 #include <vector>
 
 #include <gsl/gsl_blas.h>
@@ -117,10 +118,10 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
                       const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles,
                       const desc::MatchesT& _matches)
 {
-    size_t x_size = 100;
-    size_t y_size = 100;
-    size_t scale_size = 30;
-    size_t angle_size = 16;
+    constexpr size_t x_size = 100;
+    constexpr size_t y_size = 100;
+    constexpr size_t scale_size = 30;
+    constexpr size_t angle_size = 16;
 
     int x_min = -1000;
     int x_max = _second_image.getHeight() + 1000;
@@ -131,10 +132,13 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
 
     CSpace space(x_size, y_size, scale_size, angle_size);
 
+    std::unordered_map<size_t, std::vector<size_t>> map;
+
     int center_x = _first_image.getHeight() / 2;
     int center_y = _first_image.getWidth() / 2;
 
-    for (const auto& match : _matches) {
+    for (size_t match_index = 0; match_index < _matches.size(); match_index++) {
+        const auto& match = _matches[match_index];
         const auto& first_point = _first_blobs[match.first];
         const auto& first_angle = _first_angles[match.first];
         const auto& second_point = _second_blobs[match.second];
@@ -159,11 +163,13 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
         auto quantum_scale = size_t(log2(target_scale / min_scale) * scale_size / log2(max_scale / min_scale));
         auto quantum_angle = std::min(size_t((target_angle * angle_size) / (2 * M_PI)), angle_size - 1);
 
-        for (size_t x = quantum_x; x < quantum_x + 1; x++) {
-            for (size_t y = quantum_y; y < quantum_y + 1; y++) {
-                for (size_t scale = quantum_scale; scale < quantum_scale + 1; scale++) {
-                    for (size_t angle = quantum_angle; angle < quantum_angle + 1; angle++) {
-                        space.increase(x, y, scale, angle);
+        for (size_t x = quantum_x; x <= quantum_x + 1; x++) {
+            for (size_t y = quantum_y; y <= quantum_y + 1; y++) {
+                for (size_t scale = quantum_scale; scale <= quantum_scale + 1; scale++) {
+                    for (size_t angle = quantum_angle; angle <= quantum_angle + 1; angle++) {
+                        auto index = space.getIndex(x, y, scale, angle % angle_size);
+                        space.increase(index);
+                        map[index].push_back(match_index);
                     }
                 }
             }
@@ -171,11 +177,18 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
     }
 
     auto max_it = std::max_element(space.begin(), space.end());
-    std::cout << "max: " << *max_it << std::endl;
+    auto max_index = size_t(max_it - space.begin());
+    std::cout << "Hough max: " << *max_it << ". Index: " << max_index << std::endl;
 
-    TransformationT result;
+    desc::BlobsT first_blobs, second_blobs;
 
-    return result;
+    for (auto match_index : map[max_index]) {
+        const auto& match = _matches[match_index];
+        first_blobs.push_back(_first_blobs[match.first]);
+        second_blobs.push_back((_second_blobs[match.second]));
+    }
+
+    return getTransformation(first_blobs, second_blobs);
 }
 
 } // transform

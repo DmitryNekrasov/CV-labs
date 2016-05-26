@@ -41,6 +41,11 @@ void CSpace::increase(size_t _x, size_t _y, size_t _scale, size_t _angle) {
     m_Array[getIndex(_x, _y, _scale, _angle)]++;
 }
 
+void CSpace::increase(size_t _index) {
+    assert(_index < m_Array.getSize());
+    m_Array[_index]++;
+}
+
 double* CSpace::begin() {
     return m_Array.begin();
 }

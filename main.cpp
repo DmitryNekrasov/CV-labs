@@ -38,12 +38,7 @@ int main() {
 
     std::cout << matches.size() << std::endl;
 
-//    auto h = mycv::transform::ransac(first_blobs, second_blobs, matches);
-//    for (auto&& d : h) {
-//        std::cout << d << std::endl;
-//    }
-
-    auto q = mycv::transform::hough(first_image_in, second_image_in, first_blobs, second_blobs,
+    auto h = mycv::transform::hough(first_image_in, second_image_in, first_blobs, second_blobs,
                                     first_angles, second_angles, matches);
 
     mycv::qimg::showDescriptors(first_image_in, second_image_in, first_blobs, second_blobs,
@@ -55,7 +50,7 @@ int main() {
     mycv::qimg::showBlobs(second_image_in, second_blobs, second_angles)
             ->save("/Users/ScanNorOne/Desktop/b2.png");
 
-//    mycv::qimg::getPanorama(first_image_in, second_image_in, h)->save("/Users/ScanNorOne/Desktop/panorama.png");
+    mycv::qimg::getPanorama(first_image_in, second_image_in, h)->save("/Users/ScanNorOne/Desktop/panorama.png");
 
     return 0;
 }

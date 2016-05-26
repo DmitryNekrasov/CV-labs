@@ -19,13 +19,13 @@ public:
     double get(size_t _x, size_t _y, size_t _scale, size_t _angle) const;
 
     void increase(size_t _x, size_t _y, size_t _scale, size_t _angle);
+    void increase(size_t _index);
 
     double* begin();
     double* end();
     const double* begin() const;
     const double* end() const;
 
-private:
     size_t getIndex(size_t _x, size_t _y, size_t _scale, size_t _angle) const;
 
 private:
