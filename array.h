@@ -7,11 +7,11 @@ namespace mycv {
 class CArray
 {
 public:
-    CArray(int _size);
+    CArray(size_t _size);
 
-    int getSize() const;
+    size_t getSize() const;
 
-    double& operator[](int _index) const;
+    double& operator[](size_t _index) const;
 
     double* begin();
     double* end();
@@ -19,7 +19,7 @@ public:
     const double* end() const;
 
 private:
-    int m_Size;
+    size_t m_Size;
     std::unique_ptr<double[]> m_Array;
 };
 

@@ -48,14 +48,14 @@ CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _f
 
     CMyImage temp_image(_image.getHeight(), _image.getWidth());
 
-    int half = _filter.first.getSize() / 2;
+    auto half = int(_filter.first.getSize() / 2);
 
     for (int i = 0, ei = _image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = _image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
-            for (int y = 0, ey = _filter.first.getSize(); y < ey; y++) {
+            for (int y = 0, ey = int(_filter.first.getSize()); y < ey; y++) {
                 auto intensity = _image.get(i, j + y - half);
-                result_intensity += intensity * _filter.first[y];
+                result_intensity += intensity * _filter.first[size_t(y)];
             }
             temp_image.set(i, j, result_intensity);
         }
@@ -66,9 +66,9 @@ CMyImage applySeparableFilter(const CMyImage& _image, const SeparableFilterT& _f
     for (int i = 0, ei = temp_image.getHeight(); i < ei; i++) {
         for (int j = 0, ej = temp_image.getWidth(); j < ej; j++) {
             double result_intensity = 0;
-            for (int x = 0, ex = _filter.second.getSize(); x < ex; x++) {
+            for (int x = 0, ex = int(_filter.second.getSize()); x < ex; x++) {
                 auto intensity = temp_image.get(i + x - half, j);
-                result_intensity += intensity * _filter.second[x];
+                result_intensity += intensity * _filter.second[size_t(x)];
             }
             result_image.set(i, j, result_intensity);
         }
@@ -145,11 +145,11 @@ CMatrix getGaussKernel(double _sigma) {
 
 SeparableFilterT getGaussSeparable(const CMatrix& _gauss_kernel) {
 
-    int kernel_size = _gauss_kernel.getHeight();
+    auto kernel_size = size_t(_gauss_kernel.getHeight());
     auto separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
 
-    for (int i = 0; i < kernel_size; i++) {
-        separable_filter.first[i] = separable_filter.second[i] = sqrt(_gauss_kernel.get(i, i));
+    for (size_t i = 0; i < kernel_size; i++) {
+        separable_filter.first[i] = separable_filter.second[i] = sqrt(_gauss_kernel.get(int(i), int(i)));
     }
 
     return separable_filter;
@@ -157,13 +157,13 @@ SeparableFilterT getGaussSeparable(const CMatrix& _gauss_kernel) {
 
 SeparableFilterT getGaussSeparable(double _sigma) {
 
-    int kernel_size = smpl::getGaussKernelSize(_sigma);
-    auto separable_filter = std::make_pair<CArray, CArray>(kernel_size, kernel_size);
+    auto kernel_size = smpl::getGaussKernelSize(_sigma);
+    auto separable_filter = std::make_pair<CArray, CArray>(size_t(kernel_size), size_t(kernel_size));
 
     int half = kernel_size / 2;
 
     for (int i = 0; i < kernel_size; i++) {
-        separable_filter.first[i] = sqrt(smpl::gauss(i - half, i - half, _sigma));
+        separable_filter.first[size_t(i)] = sqrt(smpl::gauss(i - half, i - half, _sigma));
     }
 
     auto sum = std::accumulate(separable_filter.first.begin(), separable_filter.first.end(), 0.0, std::plus<double>());
@@ -172,7 +172,7 @@ SeparableFilterT getGaussSeparable(double _sigma) {
                         return _intensity / sum;
                     });
 
-    for (int i = 0; i < kernel_size; i++) {
+    for (size_t i = 0; i < size_t(kernel_size); i++) {
         separable_filter.second[i] = separable_filter.first[i];
     }
 

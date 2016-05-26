@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     qimagegenerator.cpp \
     descriptors.cpp \
     pyramid.cpp \
-    transform.cpp
+    transform.cpp \
+    space.cpp
 
 HEADERS += \
     matrix.h \
@@ -33,7 +34,8 @@ HEADERS += \
     descriptors.h \
     algo.h \
     pyramid.h \
-    transform.h
+    transform.h \
+    space.h
 
 LIBS += -L/usr/local/lib \
         -lgsl \
