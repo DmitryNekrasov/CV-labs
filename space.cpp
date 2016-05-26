@@ -1,6 +1,9 @@
 #include "space.h"
 
+#include <cassert>
+
 #include <algorithm>
+#include <iostream>
 
 namespace mycv {
 
@@ -38,7 +41,29 @@ void CSpace::increase(size_t _x, size_t _y, size_t _scale, size_t _angle) {
     m_Array[getIndex(_x, _y, _scale, _angle)]++;
 }
 
+double* CSpace::begin() {
+    return m_Array.begin();
+}
+
+double* CSpace::end() {
+    return m_Array.end();
+}
+
+const double* CSpace::begin() const {
+    return m_Array.begin();
+}
+const double* CSpace::end() const {
+    return m_Array.end();
+}
+
 size_t CSpace::getIndex(size_t _x, size_t _y, size_t _scale, size_t _angle) const {
+    assert(_x < m_XSize);
+    if (_y >= m_YSize) {
+        std::cout << "_y = " << _y << std::endl;
+    }
+    assert(_y < m_YSize);
+    assert(_scale < m_ScaleSize);
+    assert(_angle < m_AngleSize);
     return _x * m_YSize * m_ScaleSize * m_AngleSize +
             _y * m_ScaleSize * m_AngleSize +
             _scale * m_AngleSize + _angle;

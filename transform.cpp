@@ -1,13 +1,16 @@
 #include "transform.h"
 
 #include <cassert>
+#include <cmath>
 
 #include <random>
+#include <vector>
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 
 #include "simple.h"
+#include "space.h"
 
 namespace mycv {
 
@@ -105,6 +108,72 @@ TransformationT ransac(const desc::BlobsT& _first, const desc::BlobsT& _second, 
     }
 
     std::cout << "RANSAC iter count: " << iter << std::endl;
+
+    return result;
+}
+
+TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_image,
+                      const desc::BlobsT& _first_blobs, const desc::BlobsT& _second_blobs,
+                      const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles,
+                      const desc::MatchesT& _matches)
+{
+    size_t x_size = 100;
+    size_t y_size = 100;
+    size_t scale_size = 30;
+    size_t angle_size = 16;
+
+    int x_min = -1000;
+    int x_max = _second_image.getHeight() + 1000;
+    int y_min = -3000;
+    int y_max = _second_image.getWidth() + 3000;
+    double min_scale = pow(2, -8);
+    double max_scale = pow(2, 8);
+
+    CSpace space(x_size, y_size, scale_size, angle_size);
+
+    int center_x = _first_image.getHeight() / 2;
+    int center_y = _first_image.getWidth() / 2;
+
+    for (const auto& match : _matches) {
+        const auto& first_point = _first_blobs[match.first];
+        const auto& first_angle = _first_angles[match.first];
+        const auto& second_point = _second_blobs[match.second];
+        const auto& second_angle = _second_angles[match.second];
+
+        auto dx = center_x - first_point.x;
+        auto dy = center_y - first_point.y;
+
+        auto x1 = (dx * cos(-first_angle) - dy * sin(-first_angle)) / first_point.sigma;
+        auto y1 = (dx * sin(-first_angle) + dy * cos(-first_angle)) / first_point.sigma;
+
+        auto x2 = (x1 * cos(second_angle) - y1 * sin(second_angle)) * second_point.sigma;
+        auto y2 = (x1 * sin(second_angle) + y1 * cos(second_angle)) * second_point.sigma;
+
+        auto target_x = x2 + second_point.x;
+        auto target_y = y2 + second_point.y;
+        auto target_scale = second_point.sigma / first_point.sigma;
+        auto target_angle = fmod(fmod(second_angle - first_angle, M_PI * 2) + M_PI * 2, M_PI * 2);
+
+        auto quantum_x = size_t((target_x - x_min) * x_size / (x_max - x_min));
+        auto quantum_y = size_t((target_y - y_min) * y_size / (y_max - y_min));
+        auto quantum_scale = size_t(log2(target_scale / min_scale) * scale_size / log2(max_scale / min_scale));
+        auto quantum_angle = std::min(size_t((target_angle * angle_size) / (2 * M_PI)), angle_size - 1);
+
+        for (size_t x = quantum_x; x < quantum_x + 1; x++) {
+            for (size_t y = quantum_y; y < quantum_y + 1; y++) {
+                for (size_t scale = quantum_scale; scale < quantum_scale + 1; scale++) {
+                    for (size_t angle = quantum_angle; angle < quantum_angle + 1; angle++) {
+                        space.increase(x, y, scale, angle);
+                    }
+                }
+            }
+        }
+    }
+
+    auto max_it = std::max_element(space.begin(), space.end());
+    std::cout << "max: " << *max_it << std::endl;
+
+    TransformationT result;
 
     return result;
 }

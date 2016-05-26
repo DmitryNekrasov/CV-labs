@@ -20,6 +20,11 @@ public:
 
     void increase(size_t _x, size_t _y, size_t _scale, size_t _angle);
 
+    double* begin();
+    double* end();
+    const double* begin() const;
+    const double* end() const;
+
 private:
     size_t getIndex(size_t _x, size_t _y, size_t _scale, size_t _angle) const;
 
