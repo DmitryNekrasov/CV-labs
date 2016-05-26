@@ -118,10 +118,10 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
                       const desc::AnglesT& _first_angles, const desc::AnglesT& _second_angles,
                       const desc::MatchesT& _matches)
 {
-    constexpr size_t x_size = 100;
-    constexpr size_t y_size = 100;
-    constexpr size_t scale_size = 30;
-    constexpr size_t angle_size = 16;
+    size_t x_size = 100;
+    size_t y_size = 100;
+    size_t scale_size = 30;
+    size_t angle_size = 16;
 
     int x_min = -1000;
     int x_max = _second_image.getHeight() + 1000;
