@@ -123,8 +123,8 @@ TransformationT hough(const CMyImage& _first_image, const CMyImage& _second_imag
     size_t scale_size = 30;
     size_t angle_size = 16;
 
-    int x_min = -1000;
-    int x_max = _second_image.getHeight() + 1000;
+    int x_min = -3000;
+    int x_max = _second_image.getHeight() + 3000;
     int y_min = -3000;
     int y_max = _second_image.getWidth() + 3000;
     double min_scale = pow(2, -8);
