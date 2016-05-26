@@ -63,9 +63,6 @@ const double* CSpace::end() const {
 
 size_t CSpace::getIndex(size_t _x, size_t _y, size_t _scale, size_t _angle) const {
     assert(_x < m_XSize);
-    if (_y >= m_YSize) {
-        std::cout << "_y = " << _y << std::endl;
-    }
     assert(_y < m_YSize);
     assert(_scale < m_ScaleSize);
     assert(_angle < m_AngleSize);

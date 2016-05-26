@@ -36,7 +36,7 @@ int main() {
 
     auto matches = mycv::desc::getMatches(first_descriptors, second_descriptors);
 
-    std::cout << matches.size() << std::endl;
+    std::cout << "Matches count: " << matches.size() << std::endl;
 
     auto h = mycv::transform::hough(first_image_in, second_image_in, first_blobs, second_blobs,
                                     first_angles, second_angles, matches);
